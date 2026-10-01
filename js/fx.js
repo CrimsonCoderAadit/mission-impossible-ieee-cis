@@ -16,6 +16,11 @@ const CROSSFADE_CENTER = 0.72;
 const CROSSFADE_WIDTH = 0.08;
 const WINDOW_FRAMES = 25;
 const CIPHER_GLYPHS = '▓▒░█▚▞ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const FRAME_TARGETS = '.card, .transmission, .spec-panel, .briefing-stats, .prize-list';
+const ENTRY_MARGIN = '0px 0px -12% 0px';
+const EDGE_SWEEP_MS = 700;
+const EYEBROW_DECRYPT_MS = 400;
+const TIMELINE_ANCHOR = 0.6;
 
 const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 const reducedMotion = () => document.documentElement.dataset.motion === 'reduced';
@@ -294,12 +299,12 @@ function scrambled(text, revealed = 0) {
     ? character : CIPHER_GLYPHS[Math.floor(Math.random() * CIPHER_GLYPHS.length)]).join('');
 }
 
-function decrypt(node, text, complete) {
+function decrypt(node, text, complete, stepMs = 25) {
   let frame = 0;
   const started = performance.now();
   const length = [...text].length;
   const update = (now) => {
-    const revealed = Math.min(length, Math.floor((now - started) / 25));
+    const revealed = Math.min(length, Math.floor((now - started) / stepMs));
     node.textContent = scrambled(text, revealed);
     if (revealed < length) frame = requestAnimationFrame(update);
     else complete();
@@ -419,15 +424,38 @@ function setupTopbar() {
   const update = () => {
     queued = false;
     topbar.classList.toggle('is-scrolled', window.scrollY > TOPBAR_SCROLLED_PX);
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    topbar.style.setProperty('--fx-read', scrollable > 0 ? clamp01(window.scrollY / scrollable) : 0);
   };
-  window.addEventListener('scroll', () => {
+  const schedule = () => {
     if (queued) return;
     queued = true;
     requestAnimationFrame(update);
-  }, { passive: true });
+  };
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
   update();
 
   if (!('IntersectionObserver' in window)) return;
+  const nav = topbar.querySelector('.topnav');
+  const indicator = span('nav-indicator');
+  indicator.setAttribute('aria-hidden', 'true');
+  nav?.append(indicator);
+  const place = () => {
+    const link = nav?.querySelector('a[aria-current]');
+    if (!link) { indicator.classList.remove('is-active'); return; }
+    const appearing = !indicator.classList.contains('is-active');
+    if (appearing) indicator.style.transition = 'none';
+    indicator.style.setProperty('--fx-nav-x', `${link.offsetLeft}px`);
+    indicator.style.setProperty('--fx-nav-w', `${link.offsetWidth}px`);
+    if (appearing) {
+      void indicator.offsetWidth;
+      indicator.style.transition = '';
+    }
+    indicator.classList.add('is-active');
+  };
+  window.addEventListener('resize', place, { passive: true });
+  document.fonts?.ready.then(place);
   const links = new Map([...topbar.querySelectorAll('.topnav a')].map((link) => [link.hash.slice(1), link]));
   const observer = new IntersectionObserver((entries) => {
     entries.filter((entry) => entry.isIntersecting).forEach((entry) => {
@@ -436,6 +464,7 @@ function setupTopbar() {
         else link.removeAttribute('aria-current');
       });
     });
+    place();
   }, { rootMargin: '-45% 0px -50% 0px' });
   [...links.keys(), 'hero', 'accept'].forEach((id) => {
     const target = document.getElementById(id);
@@ -482,6 +511,98 @@ function setupReveal() {
   });
 }
 
+function onceInView(nodes, enter) {
+  if (!('IntersectionObserver' in window)) { nodes.forEach(enter); return; }
+  const observer = new IntersectionObserver((entries) => {
+    entries.filter((entry) => entry.isIntersecting).forEach((entry) => {
+      observer.unobserve(entry.target);
+      enter(entry.target);
+    });
+  }, { rootMargin: ENTRY_MARGIN });
+  nodes.forEach((node) => observer.observe(node));
+}
+
+const markSeen = (node) => node.classList.add('is-seen');
+
+function setupAccents() {
+  document.documentElement.classList.add('has-fx');
+
+  const cards = [...document.querySelectorAll(FRAME_TARGETS)];
+  cards.forEach((card) => {
+    const frame = span('fx-frame');
+    frame.setAttribute('aria-hidden', 'true');
+    card.classList.add('fx-card');
+    card.append(frame);
+  });
+  onceInView(cards, (card) => {
+    markSeen(card);
+    if (reducedMotion()) return;
+    card.classList.add('is-entering');
+    setTimeout(() => card.classList.remove('is-entering'), EDGE_SWEEP_MS);
+  });
+
+  onceInView([...document.querySelectorAll('main > section + section')], markSeen);
+
+  onceInView([...document.querySelectorAll('.section-head')], (head) => {
+    markSeen(head);
+    const eyebrow = head.querySelector('.eyebrow');
+    if (!eyebrow || reducedMotion()) return;
+    const text = eyebrow.textContent;
+    decrypt(eyebrow, text, () => {}, EYEBROW_DECRYPT_MS / [...text].length);
+  });
+
+  const criteria = [...document.querySelectorAll('.criteria-list')];
+  criteria.forEach((list) => {
+    [...list.children].forEach((row, index) => row.style.setProperty('--fx-i', index));
+  });
+  onceInView(criteria, markSeen);
+}
+
+function setupTimeline() {
+  const list = document.querySelector('.timeline-list');
+  const rows = list ? [...list.children] : [];
+  if (rows.length < 2) return;
+  let queued = false;
+  const update = () => {
+    queued = false;
+    const centers = rows.map((row) => row.offsetTop + parseFloat(getComputedStyle(row, '::before').top));
+    const start = centers[0];
+    const length = centers[centers.length - 1] - start;
+    const reach = reducedMotion() ? length : window.innerHeight * TIMELINE_ANCHOR - list.getBoundingClientRect().top - start;
+    list.style.setProperty('--fx-line-start', `${start}px`);
+    list.style.setProperty('--fx-line-length', `${length}px`);
+    list.style.setProperty('--fx-line-tip', `${Math.min(length, Math.max(0, reach))}px`);
+    rows.forEach((row, index) => row.classList.toggle('is-reached', reach >= centers[index] - start));
+  };
+  const schedule = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  };
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
+  motionQuery.addEventListener('change', schedule);
+  new ResizeObserver(schedule).observe(list);
+  update();
+}
+
+function setupCountdownTick() {
+  const seconds = document.querySelector('#hero [data-secs]');
+  if (!seconds) return;
+  new MutationObserver(() => {
+    if (document.hidden || reducedMotion()) return;
+    seconds.animate([{ opacity: 1 }, { opacity: 0.3 }, { opacity: 1 }, { opacity: 0.6 }, { opacity: 1 }], { duration: 120 });
+  }).observe(seconds, { childList: true, characterData: true, subtree: true });
+}
+
+function setupButtons() {
+  document.querySelectorAll('.button--primary').forEach((button) => {
+    const label = span('button-label');
+    label.append(...button.childNodes);
+    button.append(label);
+  });
+}
+
 setupTopbar();
 setupLogos();
 setupHero();
@@ -490,4 +611,8 @@ setupLeaks();
 setupManual();
 setupCriteria();
 setupReveal();
+setupAccents();
+setupTimeline();
+setupCountdownTick();
+setupButtons();
 setupFilm();

@@ -158,13 +158,17 @@ main > section + section::before {
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14) 20%, rgba(255,255,255,0.14) 80%, transparent);
+  background:
+    linear-gradient(var(--red), var(--red)) center / 160px 1px no-repeat,
+    linear-gradient(90deg, transparent, rgba(255,255,255,0.14) 20%, rgba(255,255,255,0.14) 80%, transparent);
+  transition: background-size 500ms var(--fx-ease);
 }
+.has-fx:not([data-motion="reduced"]) main > section + section:not(.is-seen)::before { background-size: 0 1px, 100% 100%; }
 main > section + section::after {
   left: 50%;
-  width: 6px;
-  height: 6px;
-  background: var(--red-hot);
+  width: 7px;
+  height: 7px;
+  background: var(--red);
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
