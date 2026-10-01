@@ -1,0 +1,27 @@
+node_modules/
+/source/
+/tools/realesrgan/
+.DS_Store
+.vercel/
+.env*
+
+# Local state and temporary files
+.remember/
+.playwright-mcp/
+__pycache__/
+*.py[cod]
+*.tmp
+*.log
+tmp/
+temp/
+.tmp/
+.temp/
+.film-*/
+.frames-*/
+raw_frames/
+frames_raw/
+temp_frames/
+png_frames/
+frames_png/
+frame_*.png
+frame-*.png

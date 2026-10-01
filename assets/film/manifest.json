@@ -1,0 +1,46 @@
+{
+  "chapters": [
+    {
+      "name": "descent",
+      "frameCount": 97,
+      "desktop": "assets/descent/desktop",
+      "mobile": "assets/descent/mobile",
+      "poster": "assets/descent/poster.jpg",
+      "upscaleModel": "realesr-animevideov3",
+      "upscaleScale": 2,
+      "desktopWidth": 2400,
+      "desktopQuality": 86,
+      "mobileWidth": 1080,
+      "mobileQuality": 78,
+      "posterQuality": 88
+    },
+    {
+      "name": "infiltration",
+      "frameCount": 61,
+      "desktop": "assets/infiltration/desktop",
+      "mobile": "assets/infiltration/mobile",
+      "poster": "assets/infiltration/poster.jpg",
+      "upscaleModel": "realesr-animevideov3",
+      "upscaleScale": 2,
+      "desktopWidth": 2400,
+      "desktopQuality": 86,
+      "mobileWidth": 1080,
+      "mobileQuality": 78,
+      "posterQuality": 88
+    },
+    {
+      "name": "extraction",
+      "frameCount": 61,
+      "desktop": "assets/extraction/desktop",
+      "mobile": "assets/extraction/mobile",
+      "poster": "assets/extraction/poster.jpg",
+      "upscaleModel": "realesr-animevideov3",
+      "upscaleScale": 2,
+      "desktopWidth": 2400,
+      "desktopQuality": 86,
+      "mobileWidth": 1080,
+      "mobileQuality": 78,
+      "posterQuality": 88
+    }
+  ]
+}
