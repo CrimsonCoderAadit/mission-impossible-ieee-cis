@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js?v=20261002-5';
+import { CONFIG } from './config.js?v=20261002-6';
 
 const FRAME_STEPS = [8, 4, 1];
 const PHASE_SEPARATOR = ' · ';
@@ -441,6 +441,45 @@ function decrypt(node, text, complete, stepMs = 25) {
   };
   frame = requestAnimationFrame(update);
   return () => cancelAnimationFrame(frame);
+}
+
+function setupLeaks() {
+  document.querySelectorAll('[data-leak]').forEach((card) => {
+    const audience = card.querySelector('.leak-audience');
+    const cipher = card.querySelector('.leak-cipher-text');
+    const hint = card.querySelector('.leak-hint');
+    const clearance = card.querySelector('.leak-clearance');
+    const text = audience.textContent;
+    let timer = 0;
+    let cancelDecrypt = () => {};
+
+    const settle = (open) => {
+      clearTimeout(timer);
+      cancelDecrypt();
+      card.classList.remove('is-glitching');
+      card.classList.toggle('is-decrypted', open);
+      cipher.textContent = open ? text : scrambled(text);
+      hint.textContent = open ? 'HIDE AUDIENCE' : 'REVEAL AUDIENCE';
+      clearance.textContent = open ? 'DECLASSIFIED' : 'CLASSIFIED';
+    };
+
+    settle(false);
+    card.addEventListener('click', () => {
+      const open = card.getAttribute('aria-expanded') !== 'true';
+      card.setAttribute('aria-expanded', String(open));
+      audience.hidden = !open;
+      settle(false);
+      if (!open) return;
+      if (reducedMotion()) { settle(true); return; }
+      hint.textContent = 'DECRYPTING…';
+      card.classList.add('is-glitching');
+      timer = setTimeout(() => {
+        card.classList.remove('is-glitching');
+        cancelDecrypt = decrypt(cipher, text, () => settle(true), Math.max(12, 520 / [...text].length));
+      }, 180);
+    });
+    motionQuery.addEventListener('change', () => settle(card.getAttribute('aria-expanded') === 'true'));
+  });
 }
 
 function setupManual() {
@@ -997,6 +1036,7 @@ setupIntro();
 setupTopbar();
 setupHero();
 setupPhaseChips();
+setupLeaks();
 setupManual();
 setupCriteria();
 setupReveal();

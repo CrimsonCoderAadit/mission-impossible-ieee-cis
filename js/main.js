@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js?v=20261002-5';
+import { CONFIG } from './config.js?v=20261002-6';
 
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 function updateMotionPreference() {
@@ -103,16 +103,31 @@ renderList('judging', CONFIG.judging, (item) => {
 });
 
 renderList('leaks', CONFIG.leaks, (item, index) => {
-  const card = element('article', 'leak-card');
+  const card = element('button', 'leak-card');
+  card.type = 'button';
+  card.setAttribute('data-leak', '');
+  card.setAttribute('aria-expanded', 'false');
+  const fileHeader = element('span', 'leak-file-header');
   const number = element('span', 'leak-file-number', `FILE ${String(index + 1).padStart(2, '0')}`);
+  const clearance = element('span', 'leak-clearance', 'CLASSIFIED');
+  fileHeader.append(number, clearance);
   const concept = element('span', 'leak-concept-block');
   concept.append(element('span', 'leak-field-label', 'Assigned concept'), element('span', 'leak-concept', item.concept));
   const target = element('span', 'leak-target-block');
+  const cipher = element('span', 'leak-cipher');
+  cipher.setAttribute('aria-hidden', 'true');
+  cipher.append(element('span', 'leak-cipher-layout', item.audience), element('span', 'leak-cipher-text', item.audience));
+  const audience = element('span', 'visually-hidden leak-audience', item.audience);
+  audience.id = `leak-audience-${index}`;
+  audience.hidden = true;
+  card.setAttribute('aria-controls', audience.id);
   target.append(
     element('span', 'leak-field-label', 'Your audience'),
-    element('span', 'leak-audience', item.audience)
+    cipher,
+    audience,
+    element('span', 'leak-hint', 'REVEAL AUDIENCE')
   );
-  card.append(number, concept, target);
+  card.append(fileHeader, concept, target);
   return card;
 });
 
