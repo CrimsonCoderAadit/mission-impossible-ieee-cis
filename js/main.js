@@ -58,8 +58,8 @@ selectAll('[data-date]').forEach((node) => {
 });
 fill('[data-event-time]', eventTime);
 fill('[data-duration-hours]', (end - start) / 3_600_000);
-fill('[data-fees]', `${currency.format(CONFIG.fees.member)} ${CONFIG.fees.unit} · CIS members / ${currency.format(CONFIG.fees.nonMember)} ${CONFIG.fees.unit} · nonmembers`);
-fill('[data-selfdestruct]', `This message will self destruct in ${CONFIG.selfDestructSeconds}`);
+fill('[data-fees]', `${currency.format(CONFIG.fees.member)} ${CONFIG.fees.unit} · CIS members / ${currency.format(CONFIG.fees.nonMember)} ${CONFIG.fees.unit} · other attendees`);
+fill('[data-selfdestruct]', `This message disappears in ${CONFIG.selfDestructSeconds}`);
 
 const links = {
   register: CONFIG.registerUrl,
@@ -166,7 +166,7 @@ function startSelfDestruct() {
   selfDestructStarted = true;
   let seconds = CONFIG.selfDestructSeconds;
   function tick() {
-    selfDestruct.textContent = `This message will self destruct in ${seconds}`;
+    selfDestruct.textContent = `This message disappears in ${seconds}`;
     if (seconds > 0) {
       seconds -= 1;
       setTimeout(tick, 1000);

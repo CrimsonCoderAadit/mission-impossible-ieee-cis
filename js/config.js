@@ -18,7 +18,7 @@ export const CONFIG = {
   ],
   contact: { name: "Harini Narasimhan", phone: "+918072001636", display: "+91 80720 01636" },
   schedule: [
-    { time: "09:30", end: "09:40", label: "Check in", detail: "Registration and team check in" },
+    { time: "09:30", end: "09:40", label: "Arrival", detail: "Team registration" },
     { time: "09:40", end: "09:50", label: "Briefing", detail: "Welcome, rules and format" },
     { time: "09:50", end: "10:50", label: "Phase 01 · Prep", detail: "Ideate and build your pitch", phase: 1 },
     { time: "10:50", end: "11:35", label: "Phase 01 · Pitches", detail: "About 3 min per squad plus questions from other teams", phase: 1 },
@@ -36,7 +36,7 @@ export const CONFIG = {
   ],
   leaks: [
     { concept: "Light mode UI", audience: "a vampire" },
-    { concept: "Neuralink brain computer interfaces", audience: "Indian parents who blame your headache on your 5G phone" },
+    { concept: "Neuralink interfaces between the brain and a computer", audience: "Indian parents who blame your headache on your 5G phone" },
     { concept: "Neural networks", audience: "a medieval king" },
     { concept: "Fuzzy logic", audience: "a professional chef" },
     { concept: "Blockchain", audience: "a history teacher" },
