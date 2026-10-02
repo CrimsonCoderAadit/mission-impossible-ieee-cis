@@ -23,7 +23,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-IN', {
 const timeFormatter = new Intl.DateTimeFormat('en-GB', {
   hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: CONFIG.timeZone
 });
-const eventTime = `${timeFormatter.format(start)}–${timeFormatter.format(end)} ${CONFIG.timeZoneLabel}`;
+const eventTime = `${timeFormatter.format(start)} to ${timeFormatter.format(end)} ${CONFIG.timeZoneLabel}`;
 
 function fill(selector, value) {
   selectAll(selector).forEach((element) => { element.textContent = value; });
@@ -48,7 +48,7 @@ const titleParts = CONFIG.eventName.split(':');
 const title = document.querySelector('[data-event-title]');
 title.children[0].textContent = `${titleParts[0]}:`;
 title.children[1].textContent = titleParts.slice(1).join(':').trim();
-document.title = `${CONFIG.eventName} — ${CONFIG.shortOrganiser} · ${CONFIG.occasion}`;
+document.title = `${CONFIG.eventName}: ${CONFIG.shortOrganiser} · ${CONFIG.occasion}`;
 selectAll('meta[property="og:title"], meta[name="twitter:title"]').forEach((meta) => {
   meta.content = document.title;
 });
@@ -58,8 +58,8 @@ selectAll('[data-date]').forEach((node) => {
 });
 fill('[data-event-time]', eventTime);
 fill('[data-duration-hours]', (end - start) / 3_600_000);
-fill('[data-fees]', `${currency.format(CONFIG.fees.member)} ${CONFIG.fees.unit} · CIS members / ${currency.format(CONFIG.fees.nonMember)} ${CONFIG.fees.unit} · non-members`);
-fill('[data-selfdestruct]', `This message will self-destruct in ${CONFIG.selfDestructSeconds}`);
+fill('[data-fees]', `${currency.format(CONFIG.fees.member)} ${CONFIG.fees.unit} · CIS members / ${currency.format(CONFIG.fees.nonMember)} ${CONFIG.fees.unit} · nonmembers`);
+fill('[data-selfdestruct]', `This message will self destruct in ${CONFIG.selfDestructSeconds}`);
 
 const links = {
   register: CONFIG.registerUrl,
@@ -70,7 +70,8 @@ const links = {
 selectAll('[data-link]').forEach((link) => {
   if (!links[link.dataset.link]) return;
   link.href = links[link.dataset.link];
-  if (link.href.startsWith('https://')) {
+  if (link.dataset.link === 'rulebook') link.download = 'mission-impossible-rulebook.pdf';
+  if (link.dataset.link === 'rulebook' || link.href.startsWith('https://')) {
     link.target = '_blank';
     link.rel = 'noopener';
   }
@@ -84,7 +85,7 @@ renderList('schedule', CONFIG.schedule, (item) => {
   from.dateTime = item.time;
   const to = element('time', '', item.end);
   to.dateTime = item.end;
-  time.append(from, '–', to);
+  time.append(from, ' to ', to);
   row.append(time, element('h3', 'timeline-label', item.label), element('p', 'timeline-detail', item.detail));
   return row;
 });
@@ -144,8 +145,8 @@ function updateCountdown() {
       countdown.querySelector(`[data-${unit}]`).textContent = String(value).padStart(2, '0');
     }
     countdown.querySelector('[data-countdown-label]').textContent = state === 'pre'
-      ? 'T-minus to deployment'
-      : state === 'live' ? 'Mission live' : 'Mission complete — debrief incoming';
+      ? 'Time until deployment'
+      : state === 'live' ? 'Mission live' : 'Mission complete: debrief incoming';
   });
 }
 updateCountdown();
@@ -158,26 +159,6 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-const sticky = document.querySelector('[data-sticky]');
-const hero = document.querySelector('#hero');
-const accept = document.querySelector('#accept');
-function updateSticky() {
-  const pastHero = hero.getBoundingClientRect().bottom <= 0;
-  const acceptRect = accept.getBoundingClientRect();
-  const acceptVisible = acceptRect.top < window.innerHeight && acceptRect.bottom > 0;
-  sticky.hidden = !pastHero || acceptVisible;
-  sticky.classList.toggle('is-visible', !sticky.hidden);
-}
-if ('IntersectionObserver' in window) {
-  const observer = new IntersectionObserver(updateSticky);
-  observer.observe(hero);
-  observer.observe(accept);
-} else {
-  window.addEventListener('scroll', updateSticky, { passive: true });
-}
-window.addEventListener('resize', updateSticky, { passive: true });
-updateSticky();
-
 const selfDestruct = document.querySelector('footer [data-selfdestruct]');
 let selfDestructStarted = false;
 function startSelfDestruct() {
@@ -185,7 +166,7 @@ function startSelfDestruct() {
   selfDestructStarted = true;
   let seconds = CONFIG.selfDestructSeconds;
   function tick() {
-    selfDestruct.textContent = `This message will self-destruct in ${seconds}`;
+    selfDestruct.textContent = `This message will self destruct in ${seconds}`;
     if (seconds > 0) {
       seconds -= 1;
       setTimeout(tick, 1000);
