@@ -49,7 +49,7 @@ main { position: relative; z-index: 1; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-block: calc(var(--topbar-h) + var(--section-pad)) var(--section-pad);
+  padding-block: calc(var(--topbar-h) + 2rem) var(--section-pad);
 }
 .hero-intro, .hero-line {
   display: flex;

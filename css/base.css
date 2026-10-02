@@ -6,6 +6,7 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: var(--topbar-h);
   background: var(--ink);
+  overscroll-behavior-y: none;
 }
 [data-motion="reduced"] { scroll-behavior: auto; }
 
@@ -280,7 +281,7 @@ main > section + section::after {
   transition: background-color 240ms var(--ease), border-color 240ms var(--ease);
 }
 .topbar.is-scrolled { background: rgb(10 6 6 / 0.94); border-bottom-color: var(--border); }
-.brand { margin-inline-end: auto; text-decoration: none; }
+.brand { flex-shrink: 0; margin-inline-end: auto; text-decoration: none; white-space: nowrap; }
 .topnav { display: flex; gap: 1.75rem; }
 .topnav a {
   padding-block: 0.5rem;
