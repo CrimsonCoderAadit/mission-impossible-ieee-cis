@@ -20,8 +20,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="css/tokens.css?v=20261002-3">
-  <link rel="stylesheet" href="css/base.css?v=20261002-3">
-  <link rel="stylesheet" href="css/sections.css?v=20261002-3">
+  <link rel="stylesheet" href="css/base.css?v=20261002-4">
+  <link rel="stylesheet" href="css/sections.css?v=20261002-4">
   <script>try{if(!sessionStorage.getItem('mi-intro-seen')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro-pending')}catch(e){}</script>
   <script type="module" src="js/main.js?v=20261002-3"></script>
   <script type="module" src="js/fx.js?v=20261002-3"></script>
@@ -74,11 +74,6 @@
     <section id="hero" class="hero" aria-labelledby="hero-title">
       <div class="hero-stage">
         <div class="hero-intro">
-          <div class="logo-row hero-logos" data-beat="1">
-            <span class="logo logo--ssn"><img src="assets/logos/ssn-white.png" alt="SSN College of Engineering" height="30"></span>
-            <span class="logo logo--ieee"><img src="assets/logos/ieee-white.png" alt="IEEE" height="30"></span>
-            <span class="logo logo--cis"><img src="assets/logos/ieee-cis-white.png" alt="IEEE Computational Intelligence Society" height="30"></span>
-          </div>
           <p class="badge" data-beat="1"><span data-field="occasion"></span></p>
           <h1 id="hero-title" data-event-title data-beat="1"><span class="title-first"></span> <span class="title-second"></span></h1>
           <div class="countdown" data-countdown data-beat="2" role="timer" aria-label="Time until deployment">
@@ -263,14 +258,7 @@
     </section>
   </main>
   <footer class="footer">
-    <div class="footer-identity">
-      <div class="logo-row footer-logos">
-        <span class="logo logo--ssn"><img src="assets/logos/ssn-white.png" alt="SSN College of Engineering" height="22"></span>
-        <span class="logo logo--ieee"><img src="assets/logos/ieee-white.png" alt="IEEE" height="22"></span>
-        <span class="logo logo--cis"><img src="assets/logos/ieee-cis-white.png" alt="IEEE Computational Intelligence Society" height="22"></span>
-      </div>
-      <p><span data-field="organiser"></span> · <span data-field="occasion"></span></p>
-    </div>
+    <p class="footer-credit"><span data-field="organiser"></span> · <span data-field="occasion"></span></p>
     <nav class="footer-links" aria-label="Event links">
       <a data-link="rulebook" target="_blank" rel="noopener" download="mission-impossible-rulebook.pdf">Rulebook</a>
       <a data-link="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
