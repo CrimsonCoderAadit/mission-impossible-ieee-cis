@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/sections.css">
+  <script>try{if(!sessionStorage.getItem('mi-intro-seen')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro-pending')}catch(e){}</script>
   <script type="module" src="js/main.js"></script>
   <script type="module" src="js/fx.js"></script>
 </head>
@@ -37,10 +38,20 @@
     <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
     <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/></symbol>
   </svg>
+  <div class="intro" aria-hidden="true">
+    <p class="intro-text">INCOMING TRANSMISSION</p>
+    <span class="intro-strike"></span>
+  </div>
   <div class="film-layer" aria-hidden="true">
     <canvas class="film-canvas" data-descent hidden></canvas>
     <div class="film-scrim"></div>
     <div class="film-grain"></div>
+  </div>
+  <canvas class="atmosphere" aria-hidden="true"></canvas>
+  <span class="film-feed" aria-hidden="true"></span>
+  <div class="fuse" aria-hidden="true">
+    <span class="fuse-burnt"></span>
+    <span class="fuse-head"><span class="fuse-spark"><span class="fuse-glow"></span><span class="fuse-core"></span><span class="fuse-particle"></span><span class="fuse-particle"></span><span class="fuse-particle"></span><span class="fuse-particle"></span><span class="fuse-particle"></span><span class="fuse-particle"></span></span></span>
   </div>
   <a href="#main" class="skip-link">Skip to mission briefing</a>
   <header class="topbar">
@@ -65,8 +76,6 @@
           </div>
           <p class="badge" data-beat="1"><span data-field="wordmark"></span> · <span data-field="occasion"></span></p>
           <h1 id="hero-title" data-event-title data-beat="1"><span class="title-first"></span> <span class="title-second"></span></h1>
-          <p class="tagline" data-field="tagline" data-beat="2"></p>
-          <p class="hero-summary" data-beat="2">A pitch and prototype challenge in two phases.</p>
           <div class="countdown" data-countdown data-beat="2" role="timer" aria-label="Time until deployment">
             <p class="countdown-label" data-countdown-label>Time until deployment</p>
             <div class="countdown-strip strip">
@@ -128,6 +137,7 @@
     </section>
 
     <section id="leaks" class="section" aria-labelledby="leaks-title">
+      <div class="lasers" aria-hidden="true"><span class="laser"></span><span class="laser"></span><span class="laser"></span><span class="laser"></span><span class="laser"></span></div>
       <div class="container">
         <header class="section-head">
           <p class="eyebrow">Scenarios</p>
@@ -158,7 +168,21 @@
           <h2 id="timeline-title">Operation Timeline</h2>
           <p class="section-sub">How the morning runs, from arrival to debrief.</p>
         </header>
-        <ol class="rows timeline-list" data-list="schedule"></ol>
+        <div class="timeline-panel">
+          <div class="timeline-chart">
+            <div class="timeline-rounds" aria-hidden="true"></div>
+            <div class="timeline-axis" aria-hidden="true"></div>
+            <div class="timeline-ticks" aria-hidden="true"></div>
+            <div class="timeline-plot">
+              <ol class="timeline-list" data-list="schedule"></ol>
+              <div class="timeline-now" aria-hidden="true" hidden><span>NOW</span></div>
+            </div>
+          </div>
+          <div class="timeline-legend">
+            <p class="timeline-key"><span class="timeline-swatch" data-kind="round1" aria-hidden="true"></span>Round 1<span class="timeline-key-sep" aria-hidden="true">·</span><span class="timeline-swatch" data-kind="round2" aria-hidden="true"></span>Round 2<span class="timeline-key-sep" aria-hidden="true">·</span><span class="timeline-swatch" data-kind="setup" aria-hidden="true"></span>Setup</p>
+            <p class="timeline-setup"></p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -178,52 +202,40 @@
         <header class="section-head">
           <p class="eyebrow">Details</p>
           <h2 id="manual-title">Field Manual</h2>
-          <p class="section-sub">Everything you need before the day.</p>
+          <p class="section-sub">Full rules, judging and schedule are in the rulebook.</p>
         </header>
         <div class="manual-grid">
-          <div class="spec-panel event-spec">
-            <header class="panel-head spec-head">
-              <div>
-                <p class="eyebrow">EVENT SPECIFICATION</p>
-                <h3 data-field="eventName"></h3>
-              </div>
-              <p class="spec-organiser"><span data-field="wordmark"></span> Student Branch · <span data-field="occasion"></span></p>
-            </header>
-            <section id="intel" aria-labelledby="intel-title">
-              <h3 id="intel-title" class="visually-hidden">Field Intel</h3>
-              <dl class="intel-table">
-                <div class="intel-row"><dt>Date</dt><dd><time data-date></time></dd></div>
-                <div class="intel-row"><dt>Time</dt><dd data-event-time></dd></div>
-                <div class="intel-row"><dt>Venue</dt><dd><span data-field="venue"></span> · Room: <span data-field="room"></span></dd></div>
-                <div class="intel-row"><dt>Squad size</dt><dd data-field="teamSize"></dd></div>
-                <div class="intel-row"><dt>Entry fee</dt><dd data-fees></dd></div>
-                <div class="intel-row"><dt>Equipment</dt><dd data-field="equipment"></dd></div>
-              </dl>
-            </section>
-            <section id="handler" class="panel-foot handler-row" aria-labelledby="handler-title">
+          <section id="intel" class="manual-spec" aria-labelledby="intel-title">
+            <h3 id="intel-title" class="visually-hidden">Field Intel</h3>
+            <dl class="rows intel-table">
+              <div class="intel-row"><dt>Date</dt><dd><time data-date></time></dd></div>
+              <div class="intel-row"><dt>Time</dt><dd data-event-time></dd></div>
+              <div class="intel-row"><dt>Venue</dt><dd><span data-field="venue"></span> · Room: <span data-field="room"></span></dd></div>
+              <div class="intel-row"><dt>Squad</dt><dd data-field="teamSize"></dd></div>
+              <div class="intel-row"><dt>Entry fee</dt><dd data-fees></dd></div>
+              <div class="intel-row"><dt>Bring</dt><dd data-field="equipment"></dd></div>
+            </dl>
+          </section>
+          <div class="manual-side">
+            <section id="handler" class="handler" aria-labelledby="handler-title">
               <h3 id="handler-title">Point of contact</h3>
-              <div class="handler-details">
-                <p class="handler-name" data-contact="name"></p>
-                <p class="handler-phone" data-contact="display"></p>
-              </div>
+              <p class="handler-name" data-contact="name"></p>
+              <p class="handler-phone" data-contact="display"></p>
               <div class="handler-actions">
                 <a class="button button--primary" data-link="call">Call</a>
                 <a class="button button--secondary" data-link="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
               </div>
             </section>
-          </div>
-          <section id="rules" class="spec-panel rules-panel" aria-labelledby="rules-title">
-            <header class="panel-head rules-head">
-              <p class="eyebrow">Rules</p>
-              <h3 id="rules-title">Rules of Engagement</h3>
-              <p class="section-sub">Read these before you register.</p>
-            </header>
-            <ol class="rules-list" data-list="rules"></ol>
-            <div class="panel-foot">
-              <a class="button button--secondary" data-link="rulebook" target="_blank" rel="noopener" download="mission-impossible-rulebook.pdf">Read the full rulebook</a>
+            <div class="rulebook">
+              <a class="rulebook-download" data-link="rulebook" target="_blank" rel="noopener" download="mission-impossible-rulebook.pdf">
+                <svg class="icon rulebook-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"/></svg>
+                <span class="rulebook-label">Download rulebook (PDF)</span>
+              </a>
+              <p class="rulebook-meta">PDF · 12 pages</p>
             </div>
-          </section>
+          </div>
         </div>
+        <ol data-list="rules" hidden></ol>
       </div>
     </section>
 
@@ -241,6 +253,7 @@
       <a data-link="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
     </nav>
   </footer>
+  <div class="reticle" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="5"/><path class="reticle-ticks" d="M10 0v3.5M10 16.5V20M0 10h3.5M16.5 10H20"/></svg></div>
   <noscript><p>Enable JavaScript to load the mission details, registration links and countdown.</p></noscript>
 </body>
 </html>

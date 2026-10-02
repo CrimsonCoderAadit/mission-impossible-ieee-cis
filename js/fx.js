@@ -1,3 +1,5 @@
+import { CONFIG } from './config.js';
+
 const FRAME_STEPS = [8, 4, 1];
 const PHASE_SEPARATOR = ' · ';
 const REVEAL_STAGGER_MS = 30;
@@ -7,7 +9,7 @@ const REVEAL_TARGETS = [
   '.phase', '.transmission',
   '.leak-card', '#leaks .small-print',
   '.prize-list', '.participation',
-  '.timeline-row', '.criterion', '.event-spec', '.rules-panel'
+  '.criterion', '.manual-spec', '.manual-side'
 ].join(', ');
 const TOPBAR_SCROLLED_PX = 24;
 const DESCENT_END = 0.30;
@@ -16,15 +18,80 @@ const CROSSFADE_CENTER = 0.72;
 const CROSSFADE_WIDTH = 0.08;
 const WINDOW_FRAMES = 25;
 const CIPHER_GLYPHS = '▓▒░█▚▞ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const FRAME_TARGETS = '.card, .transmission, .spec-panel, .briefing-stats, .prize-list';
+const FRAME_TARGETS = '.card, .transmission, .briefing-stats, .prize-list, .rulebook-download, .timeline-panel';
 const ENTRY_MARGIN = '0px 0px -12% 0px';
 const EDGE_SWEEP_MS = 700;
 const EYEBROW_DECRYPT_MS = 400;
-const TIMELINE_ANCHOR = 0.6;
+const TIMELINE_MIN_BLOCK_PX = 72;
+const TIMELINE_DESC_GAP_PX = 16;
+const TIMELINE_LIVE_MS = 30000;
+const CAMERA_PUSH = 0.06;
+const CAMERA_STEPS = 3000;
+const CUT_MS = 250;
+const CUT_GHOST_SCALE = 0.25;
+const CUT_STILL_SCALE = 0.5;
+const INTRO_KEY = 'mi-intro-seen';
+const INTRO_DECRYPT_MS = 500;
+const INTRO_STRIKE_AT = 650;
+const INTRO_IGNITE_AT = 850;
+const INTRO_CUT_AT = 1520;
+const INTRO_END_AT = 1800;
+const INTRO_LATE_MS = 3000;
+const FUSE_QUERY = '(min-width: 48rem)';
+const FUSE_IGNITE_AT = 0.998;
+const FUSE_RESET_AT = 0.97;
+const FUSE_JUMP_MS = 420;
+const IGNITE_MS = 1400;
+const HEAT_SPEED = 3;
+const HEAT_SMOOTHING_MS = 120;
+const ATMOSPHERE_MAX = 120;
+const ATMOSPHERE_EMBERS = 14;
+const ATMOSPHERE_AREA_PER_DROP = 18000;
+const ATMOSPHERE_BOOST = 3;
+const LASER_FLASH_MS = 200;
+const RETICLE_FOLLOW_MS = 60;
+const RETICLE_HOT = 'a, button, .card, [role="button"], summary, label';
+const RETICLE_TEXT = 'input, textarea, select, [contenteditable]';
 
 const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 const reducedMotion = () => document.documentElement.dataset.motion === 'reduced';
 const clamp01 = (value) => Math.min(1, Math.max(0, value));
+const motionOn = () => !reducedMotion() && !motionQuery.matches;
+
+const scroll = { y: window.scrollY, max: 1, speed: 0, heat: 0 };
+function measureScroll() {
+  scroll.max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+}
+
+const ticker = (() => {
+  const tasks = new Set();
+  let frame = 0;
+  let last = 0;
+  const run = (now) => {
+    frame = 0;
+    const dt = last ? Math.min(64, now - last) : 16;
+    last = now;
+    const y = window.scrollY;
+    const instant = Math.abs(y - scroll.y) / dt;
+    scroll.y = y;
+    scroll.speed += (instant - scroll.speed) * (1 - Math.exp(-dt / HEAT_SMOOTHING_MS));
+    scroll.heat = clamp01(scroll.speed / HEAT_SPEED);
+    tasks.forEach((task) => { if (task(now, dt) === false) tasks.delete(task); });
+    if (tasks.size && !document.hidden) frame = requestAnimationFrame(run);
+    else last = 0;
+  };
+  const start = () => {
+    if (!frame && tasks.size && !document.hidden) frame = requestAnimationFrame(run);
+  };
+  document.addEventListener('visibilitychange', start);
+  return {
+    add(task) {
+      tasks.add(task);
+      start();
+    },
+    delete(task) { tasks.delete(task); }
+  };
+})();
 
 function span(className, text) {
   const node = document.createElement('span');
@@ -73,6 +140,11 @@ function setupFilm() {
   let poster = '';
   let maxScroll = 1;
   let generation = 0;
+  let shownChapter = -1;
+  let cutUntil = 0;
+  let cutFresh = false;
+  const [redGhost, cyanGhost, still] = [0, 1, 2].map(() => document.createElement('canvas'));
+  const feed = document.querySelector('.film-feed');
   const fallback = () => motionQuery.matches || connection?.saveData || !context;
 
   function release(chapter) {
@@ -93,6 +165,10 @@ function setupFilm() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(window.innerWidth * dpr);
     canvas.height = Math.round(viewport * dpr);
+    [[redGhost, CUT_GHOST_SCALE], [cyanGhost, CUT_GHOST_SCALE], [still, CUT_STILL_SCALE]].forEach(([buffer, scale]) => {
+      buffer.width = Math.max(1, Math.round(canvas.width * scale));
+      buffer.height = Math.max(1, Math.round(canvas.height * scale));
+    });
     if (context) {
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = 'high';
@@ -145,8 +221,8 @@ function setupFilm() {
     return null;
   }
 
-  function paint(image, alpha = 1) {
-    const scale = Math.max(canvas.width / image.naturalWidth, canvas.height / image.naturalHeight);
+  function paint(image, alpha = 1, zoom = 1) {
+    const scale = Math.max(canvas.width / image.naturalWidth, canvas.height / image.naturalHeight) * zoom;
     const width = image.naturalWidth * scale;
     const height = image.naturalHeight * scale;
     context.globalAlpha = alpha;
@@ -165,6 +241,51 @@ function setupFilm() {
     context.globalAlpha = 1;
     context.globalCompositeOperation = 'source-over';
   }
+
+  function capture(buffer, tint) {
+    const bufferContext = buffer.getContext('2d');
+    bufferContext.globalCompositeOperation = 'copy';
+    bufferContext.drawImage(canvas, 0, 0, buffer.width, buffer.height);
+    if (!tint) return;
+    bufferContext.globalCompositeOperation = 'multiply';
+    bufferContext.fillStyle = tint;
+    bufferContext.fillRect(0, 0, buffer.width, buffer.height);
+  }
+
+  // The cut samples the frame once and replays it, so the 250ms glitch never reads the canvas back mid-scroll.
+  function cut(remaining) {
+    if (cutFresh) {
+      cutFresh = false;
+      capture(redGhost, '#ff0000');
+      capture(cyanGhost, '#00ffff');
+      capture(still);
+    }
+    const strength = remaining / CUT_MS;
+    const shift = Math.round(canvas.width * 0.006 * (0.5 + strength));
+    context.globalCompositeOperation = 'screen';
+    context.globalAlpha = 0.6 * strength + 0.2;
+    context.drawImage(redGhost, shift, 0, canvas.width, canvas.height);
+    context.drawImage(cyanGhost, -shift, 0, canvas.width, canvas.height);
+    context.globalAlpha = 1;
+    context.globalCompositeOperation = 'source-over';
+    const ratio = still.height / canvas.height;
+    for (let slice = 0; slice < 6; slice += 1) {
+      const y = Math.random() * canvas.height;
+      const height = 4 + Math.random() * canvas.height * 0.06;
+      const offset = (Math.random() - 0.5) * canvas.width * 0.08 * strength;
+      context.drawImage(still, 0, y * ratio, still.width, height * ratio, offset, y, canvas.width, height);
+    }
+  }
+
+  function announce(chapter) {
+    if (!feed) return;
+    feed.textContent = `FEED ${String(chapter + 1).padStart(2, '0')}`;
+    feed.classList.remove('is-flashing');
+    void feed.offsetWidth;
+    feed.classList.add('is-flashing');
+  }
+
+  const push = (t) => 1 + Math.round(clamp01(t) * CAMERA_STEPS) / CAMERA_STEPS * CAMERA_PUSH;
 
   function timeline(total) {
     if (total < DESCENT_END) return { chapter: 0, t: total / DESCENT_END };
@@ -210,27 +331,44 @@ function setupFilm() {
     let base;
     let overlay = null;
     let mix = 1;
+    let baseZoom = push(state.t);
+    let overlayZoom = baseZoom;
     if (crossing) {
       const from = chapters[1];
       const to = chapters[2];
       base = from && nearest(from, frameIndex(from, state.infiltration));
       overlay = to && nearest(to, frameIndex(to, state.t));
+      baseZoom = push(state.infiltration);
       mix = Math.round(state.cross * 24) / 24;
-      if (!base) { base = overlay; overlay = null; }
+      if (!base) { base = overlay; overlay = null; baseZoom = overlayZoom; }
     } else {
       const chapter = chapters[state.chapter];
       base = chapter && nearest(chapter, frameIndex(chapter, state.t));
     }
     if (!base) { canvas.hidden = true; return; }
     canvas.hidden = false;
-    const key = `${base.key}:${overlay?.key || ''}:${mix}`;
-    if (key === lastDraw) return;
-    lastDraw = key;
-    paint(base.image);
+    const now = performance.now();
+    if (shownChapter !== state.chapter) {
+      if (shownChapter >= 0 && motionOn()) {
+        cutUntil = now + CUT_MS;
+        cutFresh = true;
+        announce(state.chapter);
+      }
+      shownChapter = state.chapter;
+    }
+    const cutting = now < cutUntil;
+    const key = `${base.key}:${overlay?.key || ''}:${mix}:${baseZoom}:${overlayZoom}`;
+    if (key === lastDraw && !cutting) return;
+    lastDraw = cutting ? '' : key;
+    paint(base.image, 1, baseZoom);
     if (overlay) {
-      paint(overlay.image, mix);
+      paint(overlay.image, mix, overlayZoom);
       const intensity = Math.sin(mix * Math.PI);
       if (intensity > 0.05) glitch(intensity);
+    }
+    if (cutting) {
+      cut(cutUntil - now);
+      schedule();
     }
   }
 
@@ -384,7 +522,10 @@ function setupLeaks() {
         clear();
         if (!expanded) { settled(false); return; }
         state.busy = true;
-        cancelDecrypt = decrypt(cipher, text, () => settled(true));
+        cancelDecrypt = decrypt(cipher, text, () => {
+          settled(true);
+          flashLasers();
+        });
       }, expanded ? 400 : 180);
     };
     card.addEventListener('click', change);
@@ -558,32 +699,394 @@ function setupAccents() {
   onceInView(criteria, markSeen);
 }
 
+const toMinutes = (time) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
 function setupTimeline() {
-  const list = document.querySelector('.timeline-list');
+  const panel = document.querySelector('.timeline-panel');
+  const list = panel?.querySelector('.timeline-list');
   const rows = list ? [...list.children] : [];
   if (rows.length < 2) return;
-  let queued = false;
-  const update = () => {
-    queued = false;
-    const centers = rows.map((row) => row.offsetTop + parseFloat(getComputedStyle(row, '::before').top));
-    const start = centers[0];
-    const length = centers[centers.length - 1] - start;
-    const reach = reducedMotion() ? length : window.innerHeight * TIMELINE_ANCHOR - list.getBoundingClientRect().top - start;
-    list.style.setProperty('--fx-line-start', `${start}px`);
-    list.style.setProperty('--fx-line-length', `${length}px`);
-    list.style.setProperty('--fx-line-tip', `${Math.min(length, Math.max(0, reach))}px`);
-    rows.forEach((row, index) => row.classList.toggle('is-reached', reach >= centers[index] - start));
+  const spans = rows.map((row) => {
+    const [from, to] = row.querySelectorAll('time');
+    return { from: from.dateTime, to: to.dateTime, start: toMinutes(from.dateTime), end: toMinutes(to.dateTime) };
+  });
+  const kinds = rows.map((row) => row.dataset.phase ? `round${row.dataset.phase}` : 'setup');
+  panel.style.setProperty('--tl-cols', spans
+    .map(({ start, end }) => `minmax(${TIMELINE_MIN_BLOCK_PX}px, ${end - start}fr)`).join(' '));
+
+  rows.forEach((row, index) => {
+    const { from, to, start, end } = spans[index];
+    const kind = kinds[index];
+    const label = row.querySelector('.timeline-label');
+    const name = label.textContent;
+    const at = name.lastIndexOf(PHASE_SEPARATOR);
+    if (at >= 0) {
+      label.replaceChildren(
+        span('timeline-label-prefix', name.slice(0, at + PHASE_SEPARATOR.length)),
+        span('timeline-label-name', name.slice(at + PHASE_SEPARATOR.length))
+      );
+    }
+    row.dataset.kind = kind;
+    if (index > 0 && kinds[index - 1] === kind && kind !== 'setup') row.dataset.shade = 'alt';
+    row.style.setProperty('--fx-i', index);
+    row.append(span('timeline-duration', `${end - start} min`));
+    if (kind === 'setup') {
+      const mark = span('timeline-mark', name.trim().charAt(0));
+      const tip = span('timeline-tip', `${name} · ${from} to ${to}`);
+      mark.setAttribute('aria-hidden', 'true');
+      tip.setAttribute('aria-hidden', 'true');
+      row.append(mark, tip);
+      row.tabIndex = 0;
+    }
+  });
+
+  const axis = panel.querySelector('.timeline-axis');
+  const ticks = panel.querySelector('.timeline-ticks');
+  axis?.replaceChildren(...spans.map(({ from }) => span('timeline-axis-time', from)));
+  ticks?.replaceChildren(...spans.map(() => span('timeline-tick')));
+
+  const rounds = [];
+  kinds.forEach((kind, index) => {
+    if (kind === 'setup') return;
+    const round = rounds.find((item) => item.kind === kind);
+    if (round) round.last = index;
+    else rounds.push({ kind, first: index, last: index, phase: rows[index].dataset.phase });
+  });
+  panel.querySelector('.timeline-rounds')?.replaceChildren(...rounds.map(({ kind, first, last, phase }) => {
+    const bracket = span('timeline-round', `Round ${phase}`);
+    bracket.dataset.kind = kind;
+    bracket.style.gridColumn = `${first + 1} / ${last + 2}`;
+    return bracket;
+  }));
+
+  const setup = panel.querySelector('.timeline-setup');
+  if (setup) {
+    setup.textContent = `Setup: ${rows
+      .map((row, index) => kinds[index] === 'setup' ? `${row.querySelector('.timeline-label').textContent} ${spans[index].from}` : '')
+      .filter(Boolean).join(' · ')}`;
+  }
+
+  const described = rows.filter((row, index) => kinds[index] !== 'setup');
+  const layout = () => {
+    const width = list.clientWidth;
+    let depth = 0;
+    described.forEach((row, index) => {
+      const next = described[index + 1];
+      const right = next ? next.offsetLeft : width;
+      row.style.setProperty('--fx-desc-w', `${Math.max(row.offsetWidth, right - row.offsetLeft) - TIMELINE_DESC_GAP_PX}px`);
+    });
+    described.forEach((row) => {
+      depth = Math.max(depth, row.querySelector('.timeline-detail').offsetHeight);
+    });
+    panel.style.setProperty('--tl-desc-h', `${depth}px`);
+    live();
   };
-  const schedule = () => {
-    if (queued) return;
-    queued = true;
-    requestAnimationFrame(update);
+
+  const marker = panel.querySelector('.timeline-now');
+  const eventStart = new Date(CONFIG.start).getTime();
+  const eventEnd = new Date(CONFIG.end).getTime();
+  function live() {
+    const now = Date.now();
+    const on = now >= eventStart && now < eventEnd;
+    rows.forEach((row) => row.classList.remove('is-active'));
+    if (marker) marker.hidden = !on;
+    if (!on || !marker) return;
+    const minute = spans[0].start + (now - eventStart) / 60000;
+    const index = spans.findIndex(({ start, end }) => minute >= start && minute < end);
+    if (index < 0) { marker.hidden = true; return; }
+    const row = rows[index];
+    const { start, end } = spans[index];
+    rows[index].classList.add('is-active');
+    marker.style.transform = `translateX(${row.offsetLeft + (minute - start) / (end - start) * row.offsetWidth}px)`;
+  }
+  if (Date.now() < eventEnd) setInterval(live, TIMELINE_LIVE_MS);
+
+  new ResizeObserver(layout).observe(list);
+  document.fonts?.ready.then(layout);
+  layout();
+
+  const lasers = document.querySelector('.lasers');
+  if (lasers && 'IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      entries.forEach((entry) => lasers.classList.toggle('is-dimmed', entry.isIntersecting));
+    }).observe(document.getElementById('timeline'));
+  }
+}
+
+function flashLasers() {
+  if (!motionOn()) return;
+  document.querySelectorAll('.laser').forEach((laser) => {
+    laser.animate([{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: getComputedStyle(laser).opacity }], { duration: LASER_FLASH_MS, easing: 'ease-out' });
+  });
+}
+
+function setupFuse() {
+  const fuse = document.querySelector('.fuse');
+  const burnt = fuse?.querySelector('.fuse-burnt');
+  const head = fuse?.querySelector('.fuse-head');
+  const spark = fuse?.querySelector('.fuse-spark');
+  const target = document.querySelector('#accept .button--primary');
+  if (!fuse || !burnt || !head || !spark) return;
+  const wide = window.matchMedia(FUSE_QUERY);
+  let length = 0;
+  let drawn = '';
+  let spent = false;
+  let jump = null;
+  let igniteTimer = 0;
+
+  const measure = () => {
+    length = fuse.clientHeight;
+    measureScroll();
+    drawn = '';
+    ticker.add(frame);
   };
-  window.addEventListener('scroll', schedule, { passive: true });
-  window.addEventListener('resize', schedule, { passive: true });
-  motionQuery.addEventListener('change', schedule);
-  new ResizeObserver(schedule).observe(list);
-  update();
+
+  const reset = () => {
+    spent = false;
+    jump?.cancel();
+    jump = null;
+    clearTimeout(igniteTimer);
+    target?.classList.remove('is-ignited');
+    fuse.classList.remove('is-spent');
+  };
+
+  const ignite = () => {
+    spent = true;
+    if (!target) return;
+    const from = spark.getBoundingClientRect();
+    const to = target.getBoundingClientRect();
+    if (to.bottom < 0 || to.top > window.innerHeight) {
+      fuse.classList.add('is-spent');
+      return;
+    }
+    const dx = to.left + 12 - from.left;
+    const dy = to.top + to.height / 2 - from.top;
+    jump = spark.animate([
+      { translate: '0 0' },
+      { translate: `${dx * 0.5}px ${dy * 0.5 - 80}px`, offset: 0.5 },
+      { translate: `${dx}px ${dy}px` }
+    ], { duration: FUSE_JUMP_MS, easing: 'cubic-bezier(0.5, 0, 0.75, 0)', fill: 'forwards' });
+    jump.onfinish = () => {
+      fuse.classList.add('is-spent');
+      target.classList.remove('is-ignited');
+      void target.offsetWidth;
+      target.classList.add('is-ignited');
+      igniteTimer = setTimeout(() => target.classList.remove('is-ignited'), IGNITE_MS);
+    };
+  };
+
+  function frame() {
+    if (!wide.matches || !motionOn()) return false;
+    const progress = clamp01(scroll.y / scroll.max);
+    const heat = Math.round(scroll.heat * 20) / 20;
+    const state = `${progress.toFixed(4)}:${heat}`;
+    if (state !== drawn) {
+      drawn = state;
+      burnt.style.transform = `scaleY(${progress})`;
+      head.style.transform = `translate3d(0, ${progress * length}px, 0)`;
+      fuse.style.setProperty('--fx-heat', heat);
+    }
+    if (!spent && progress >= FUSE_IGNITE_AT) ignite();
+    else if (spent && progress < FUSE_RESET_AT) reset();
+    return scroll.speed > 0.01;
+  }
+
+  window.addEventListener('scroll', () => ticker.add(frame), { passive: true });
+  window.addEventListener('resize', measure, { passive: true });
+  wide.addEventListener('change', measure);
+  motionQuery.addEventListener('change', measure);
+  new ResizeObserver(measure).observe(document.querySelector('main'));
+  measure();
+}
+
+function setupIntro() {
+  const root = document.documentElement;
+  const intro = document.querySelector('.intro');
+  if (!root.classList.contains('intro-pending') || !intro) return;
+  try { sessionStorage.setItem(INTRO_KEY, '1'); } catch {}
+  const timers = [];
+  let cancelDecrypt = () => {};
+  const finish = () => {
+    timers.forEach(clearTimeout);
+    cancelDecrypt();
+    root.classList.remove('intro-pending', 'intro-ignite');
+    intro.remove();
+    window.removeEventListener('pointerdown', finish, true);
+    window.removeEventListener('keydown', finish, true);
+  };
+  if (!motionOn() || performance.now() > INTRO_LATE_MS) {
+    finish();
+    return;
+  }
+  window.addEventListener('pointerdown', finish, true);
+  window.addEventListener('keydown', finish, true);
+  const text = intro.querySelector('.intro-text');
+  const message = text.textContent;
+  cancelDecrypt = decrypt(text, message, () => {}, INTRO_DECRYPT_MS / [...message].length);
+  if (!window.matchMedia(FUSE_QUERY).matches) intro.style.setProperty('--fx-strike-x', '50%');
+  const at = (ms, step) => timers.push(setTimeout(step, ms));
+  at(INTRO_STRIKE_AT, () => intro.classList.add('is-striking'));
+  at(INTRO_IGNITE_AT, () => root.classList.add('intro-ignite'));
+  at(INTRO_CUT_AT, () => intro.classList.add('is-cut'));
+  at(INTRO_END_AT, finish);
+}
+
+function setupReticle() {
+  const reticle = document.querySelector('.reticle');
+  const fine = window.matchMedia('(pointer: fine)');
+  if (!reticle) return;
+  const root = document.documentElement;
+  const position = { x: 0, y: 0, tx: 0, ty: 0, placed: false };
+  const enabled = () => fine.matches && motionOn();
+
+  const frame = (now, dt) => {
+    if (!enabled()) return false;
+    const follow = 1 - Math.exp(-dt / RETICLE_FOLLOW_MS);
+    position.x += (position.tx - position.x) * follow;
+    position.y += (position.ty - position.y) * follow;
+    const settled = Math.abs(position.tx - position.x) < 0.1 && Math.abs(position.ty - position.y) < 0.1;
+    if (settled) {
+      position.x = position.tx;
+      position.y = position.ty;
+    }
+    reticle.style.transform = `translate3d(${position.x}px, ${position.y}px, 0)`;
+    return !settled;
+  };
+
+  const sync = () => {
+    root.classList.toggle('has-reticle', enabled());
+    if (!enabled()) reticle.classList.remove('is-visible');
+  };
+  window.addEventListener('pointermove', (event) => {
+    if (event.pointerType === 'touch' || !enabled()) return;
+    position.tx = event.clientX;
+    position.ty = event.clientY;
+    if (!position.placed) {
+      position.x = position.tx;
+      position.y = position.ty;
+      position.placed = true;
+    }
+    ticker.add(frame);
+  }, { passive: true });
+  document.addEventListener('pointerover', (event) => {
+    if (event.pointerType === 'touch') return;
+    const typing = event.target.closest?.(RETICLE_TEXT);
+    reticle.classList.toggle('is-visible', !typing);
+    reticle.classList.toggle('is-hot', !typing && Boolean(event.target.closest?.(RETICLE_HOT)));
+  });
+  document.addEventListener('pointerout', (event) => {
+    if (!event.relatedTarget) reticle.classList.remove('is-visible');
+  });
+  fine.addEventListener('change', sync);
+  motionQuery.addEventListener('change', sync);
+  sync();
+}
+
+function setupAtmosphere() {
+  const canvas = document.querySelector('.atmosphere');
+  const context = canvas?.getContext('2d');
+  if (!context) return;
+  const drops = [];
+  const embers = [];
+  const sprite = document.createElement('canvas');
+  let dpr = 1;
+  let width = 0;
+  let height = 0;
+
+  sprite.width = sprite.height = 32;
+  const spriteContext = sprite.getContext('2d');
+  const glow = spriteContext.createRadialGradient(16, 16, 0, 16, 16, 16);
+  glow.addColorStop(0, 'rgba(255, 214, 170, 1)');
+  glow.addColorStop(0.2, 'rgba(255, 90, 50, 0.9)');
+  glow.addColorStop(1, 'rgba(255, 40, 30, 0)');
+  spriteContext.fillStyle = glow;
+  spriteContext.fillRect(0, 0, 32, 32);
+
+  const seed = (drop, anywhere) => {
+    drop.x = Math.random() * (width + height * 0.2);
+    drop.y = anywhere ? Math.random() * height : -drop.length;
+    return drop;
+  };
+
+  const measure = () => {
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    width = canvas.width = Math.round(window.innerWidth * dpr);
+    height = canvas.height = Math.round(window.innerHeight * dpr);
+    const area = window.innerWidth * window.innerHeight;
+    const emberCount = Math.min(ATMOSPHERE_EMBERS, Math.round(area / 90000));
+    const dropCount = Math.min(ATMOSPHERE_MAX - emberCount, Math.round(area / ATMOSPHERE_AREA_PER_DROP));
+    drops.length = 0;
+    embers.length = 0;
+    for (let index = 0; index < dropCount; index += 1) {
+      drops.push(seed({
+        length: (10 + Math.random() * 14) * dpr,
+        speed: (0.5 + Math.random() * 0.45) * dpr,
+        layer: index % 3
+      }, true));
+    }
+    for (let index = 0; index < emberCount; index += 1) {
+      embers.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: (5 + Math.random() * 7) * dpr,
+        rise: (0.012 + Math.random() * 0.025) * dpr,
+        sway: Math.random() * Math.PI * 2,
+        flicker: Math.random() * Math.PI * 2
+      });
+    }
+  };
+
+  const layerAlpha = [0.05, 0.085, 0.13];
+  const frame = (now, dt) => {
+    if (!motionOn()) {
+      context.clearRect(0, 0, width, height);
+      return false;
+    }
+    const boost = 1 + scroll.heat * ATMOSPHERE_BOOST;
+    context.clearRect(0, 0, width, height);
+    context.lineWidth = dpr;
+    for (let layer = 0; layer < 3; layer += 1) {
+      context.strokeStyle = `rgba(235, 225, 225, ${layerAlpha[layer]})`;
+      context.beginPath();
+      drops.forEach((drop) => {
+        if (drop.layer !== layer) return;
+        const step = drop.speed * (0.7 + layer * 0.25) * boost * dt;
+        drop.y += step;
+        drop.x -= step * 0.18;
+        if (drop.y - drop.length > height || drop.x < -drop.length) seed(drop, false);
+        const length = drop.length * (1 + scroll.heat);
+        context.moveTo(drop.x, drop.y);
+        context.lineTo(drop.x + length * 0.18, drop.y - length);
+      });
+      context.stroke();
+    }
+    embers.forEach((item) => {
+      item.y -= item.rise * boost * dt;
+      item.sway += dt * 0.0012;
+      item.flicker += dt * 0.01;
+      const x = item.x + Math.sin(item.sway) * 18 * dpr;
+      if (item.y < -item.size) {
+        item.y = height + item.size;
+        item.x = Math.random() * width;
+      }
+      context.globalAlpha = 0.35 + Math.sin(item.flicker) * 0.2;
+      context.drawImage(sprite, x - item.size / 2, item.y - item.size / 2, item.size, item.size);
+    });
+    context.globalAlpha = 1;
+    return true;
+  };
+
+  const start = () => {
+    if (motionOn()) ticker.add(frame);
+    else context.clearRect(0, 0, width, height);
+  };
+  window.addEventListener('resize', measure, { passive: true });
+  motionQuery.addEventListener('change', start);
+  measure();
+  start();
 }
 
 function setupCountdownTick() {
@@ -603,6 +1106,7 @@ function setupButtons() {
   });
 }
 
+setupIntro();
 setupTopbar();
 setupLogos();
 setupHero();
@@ -616,3 +1120,6 @@ setupTimeline();
 setupCountdownTick();
 setupButtons();
 setupFilm();
+setupAtmosphere();
+setupFuse();
+setupReticle();
