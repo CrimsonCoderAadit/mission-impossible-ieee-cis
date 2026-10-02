@@ -281,12 +281,6 @@ main > section + section::after {
 }
 .topbar.is-scrolled { background: rgb(10 6 6 / 0.94); border-bottom-color: var(--border); }
 .brand { margin-inline-end: auto; text-decoration: none; }
-.wordmark {
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
 .topnav { display: flex; gap: 1.75rem; }
 .topnav a {
   padding-block: 0.5rem;
@@ -299,18 +293,22 @@ main > section + section::after {
 .topnav a:hover, .topnav a[aria-current] { color: var(--white); }
 .topbar .button { min-height: 2.375rem; padding: 0 1.125rem; font-size: 1rem; }
 
-.logo { display: flex; align-items: center; height: 28px; }
-.logo img { width: auto; height: 28px; }
-.logo.is-missing {
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--white);
+.logo-row { display: flex; align-items: center; gap: 18px; }
+.logo { position: relative; display: flex; align-items: center; flex: none; }
+.logo img { display: block; width: auto; }
+.logo-row .logo + .logo::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -10px;
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
 }
-.logo.is-missing img { display: none; }
-.logo--ssn.is-missing::after { content: "SSN SB"; }
-.logo--cis.is-missing::after { content: "CIS"; }
+.topbar .logo img { height: 26px; }
+.footer-logos { opacity: 0.8; }
+.footer-logos .logo img { height: 22px; }
+.footer-identity { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem 1.5rem; }
+.footer-identity p { margin: 0; }
 
 .footer {
   position: relative;

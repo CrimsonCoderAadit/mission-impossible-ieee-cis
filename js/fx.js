@@ -613,14 +613,6 @@ function setupTopbar() {
   });
 }
 
-function setupLogos() {
-  document.querySelectorAll('.logo img').forEach((image) => {
-    const missing = () => image.closest('.logo').classList.add('is-missing');
-    if (image.complete && image.naturalWidth === 0) missing();
-    else image.addEventListener('error', missing, { once: true });
-  });
-}
-
 function setupReveal() {
   if (reducedMotion() || !('IntersectionObserver' in window)) return;
   const pending = new Set();
@@ -1108,7 +1100,6 @@ function setupButtons() {
 
 setupIntro();
 setupTopbar();
-setupLogos();
 setupHero();
 setupPhaseChips();
 setupLeaks();

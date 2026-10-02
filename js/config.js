@@ -49,7 +49,6 @@ export const CONFIG = {
     "Your final build must use technology and relate to your assigned concept.",
     "Bring your own charged laptop with access to your AI tools."
   ],
-  wordmark: "IEEE CIS · SSN",
   shortOrganiser: "IEEE CIS SSN",
   timeZone: "Asia/Kolkata",
   timeZoneLabel: "IST",

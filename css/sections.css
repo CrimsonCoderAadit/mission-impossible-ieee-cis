@@ -60,8 +60,7 @@ main { position: relative; z-index: 1; }
   text-align: center;
 }
 
-.hero-logos { display: flex; align-items: center; gap: 1.25rem; }
-.hero-logos .logo + .logo { padding-inline-start: 1.25rem; border-inline-start: 1px solid var(--border-strong); }
+.hero-logos .logo img { height: 30px; }
 
 .badge {
   margin-block-start: 1rem;
@@ -945,6 +944,11 @@ body[data-state="live"] #hero .countdown-label { color: var(--red-hot); }
   .cards--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .manual-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .manual-side { padding-block-start: 2.5rem; }
+}
+
+@media (max-width: 47.9375rem) {
+  .topbar .logo:not(.logo--cis) { display: none; }
+  .topbar .logo--cis::before { display: none; }
 }
 
 @media (max-width: 45rem) {
