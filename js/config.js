@@ -53,7 +53,7 @@ export const CONFIG = {
   timeZone: "Asia/Kolkata",
   timeZoneLabel: "IST",
   phaseCount: 2,
-  aiTools: "Any",
+  aiTools: "ChatGPT, Claude, or any AI tool",
   equipment: "Your own laptop, charged, with AI tool access",
   participation: "Every operative receives a Certificate of Participation.",
   operation: {

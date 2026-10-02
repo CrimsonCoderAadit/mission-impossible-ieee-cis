@@ -21,10 +21,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="css/tokens.css?v=20261002-3">
   <link rel="stylesheet" href="css/base.css?v=20261002-4">
-  <link rel="stylesheet" href="css/sections.css?v=20261002-4">
+  <link rel="stylesheet" href="css/sections.css?v=20261002-5">
   <script>try{if(!sessionStorage.getItem('mi-intro-seen')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro-pending')}catch(e){}</script>
-  <script type="module" src="js/main.js?v=20261002-3"></script>
-  <script type="module" src="js/fx.js?v=20261002-3"></script>
+  <script type="module" src="js/main.js?v=20261002-5"></script>
+  <script type="module" src="js/fx.js?v=20261002-5"></script>
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true" hidden>
@@ -108,7 +108,7 @@
           <div class="stat"><dt>phases</dt><dd data-field="phaseCount"></dd></div>
           <div class="stat"><dt>hours</dt><dd data-duration-hours></dd></div>
           <div class="stat"><dt>operatives</dt><dd data-field="teamSize"></dd></div>
-          <div class="stat"><dt>AI tool</dt><dd data-field="aiTools"></dd></div>
+          <div class="stat"><dt>AI tools</dt><dd data-field="aiTools"></dd></div>
         </dl>
       </div>
     </section>
@@ -142,20 +142,9 @@
         <header class="section-head">
           <p class="eyebrow">Scenarios</p>
           <h2 id="leaks-title">Scenario Leaks</h2>
-          <p class="section-sub">One concept. One unlikely audience. Open a sample file to see the assignment.</p>
+          <p class="section-sub">Six sample pairings from the simulation archive. Your real assignment arrives on the day.</p>
         </header>
-        <div class="mission-file">
-          <div class="mission-file-header">
-            <span class="mission-file-number" data-leak-count>FILE 01 / 06</span>
-            <span class="mission-file-stamp">Simulation archive</span>
-          </div>
-          <div class="leak-grid" data-list="leaks"></div>
-          <div class="mission-file-controls">
-            <button type="button" data-leak-prev>← Previous file</button>
-            <button type="button" data-leak-next>Next file →</button>
-          </div>
-          <p class="visually-hidden" role="status" data-leak-announcement></p>
-        </div>
+        <div class="leak-grid" data-list="leaks"></div>
         <p class="small-print">Sample intel only. Live briefs are assigned on the day.</p>
       </div>
     </section>
@@ -246,7 +235,10 @@
             </div>
           </div>
         </div>
-        <ol data-list="rules" hidden></ol>
+        <section class="manual-rules" aria-labelledby="rules-title">
+          <h3 id="rules-title">Rules at a glance</h3>
+          <ol data-list="rules"></ol>
+        </section>
       </div>
     </section>
 

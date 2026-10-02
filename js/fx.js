@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js?v=20261002-3';
+import { CONFIG } from './config.js?v=20261002-5';
 
 const FRAME_STEPS = [8, 4, 1];
 const PHASE_SEPARATOR = ' · ';
