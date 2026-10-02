@@ -212,92 +212,111 @@ body[data-state="live"] #hero .countdown-label { color: var(--red-hot); }
   color: var(--text);
 }
 
-/* Leaks */
+/* Scenario file */
 
-.leak-card {
-  position: relative;
-  overflow: hidden;
-  text-align: start;
-  animation: classified-pulse 2.5s ease-in-out infinite;
+.mission-file {
+  width: min(100%, 920px);
+  margin-inline: auto;
+  border: 1px solid rgb(186 194 199 / 0.45);
+  background: rgb(10 6 6 / 0.68);
 }
-.leak-content { display: flex; flex-direction: column; gap: 14px; height: 100%; }
-.leak-concept { display: grid; justify-items: start; gap: 14px; }
-.leak-concept .leak-value {
-  font-family: var(--font-heading);
-  font-size: var(--t-h3);
-  font-weight: 600;
-  line-height: 1.12;
-  letter-spacing: -0.015em;
+.mission-file-header,
+.mission-file-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mission-file-header {
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgb(186 194 199 / 0.3);
+  color: var(--silver);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.mission-file-number { color: var(--white); }
+.mission-file-stamp { text-align: end; }
+.leak-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  align-items: start;
+  gap: 2rem 3rem;
+  width: 100%;
+  min-height: 17rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  text-align: start;
   color: var(--white);
+}
+.leak-concept-block,
+.leak-target-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  min-width: 0;
+}
+.leak-target-block {
+  min-height: 7rem;
+  padding-inline-start: 2rem;
+  border-inline-start: 1px solid rgb(186 194 199 / 0.35);
+}
+.leak-field-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--silver);
+}
+.leak-concept,
+.leak-audience {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.04;
   text-shadow: var(--film-shadow);
 }
-.leak-hint {
-  display: block;
-  margin-block-start: auto;
-  font-family: var(--font-sans);
-  font-size: 0.6875rem;
-  line-height: 1.6;
-  letter-spacing: 0.24em;
+.leak-concept { font-size: clamp(2rem, 4vw, 3.25rem); }
+.leak-audience { font-size: clamp(1.75rem, 3vw, 2.5rem); }
+.leak-placeholder { max-width: 22ch; color: var(--text); }
+.leak-action {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding-block-end: 0.25rem;
+  border-bottom: 1px solid var(--red-hot);
   color: var(--red-hot);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
-.leak-cipher { position: relative; display: block; color: rgb(255 255 255 / 0.3); transition: color 160ms var(--ease); }
-.leak-cipher-layout { display: block; visibility: hidden; }
-.leak-cipher-text { position: absolute; inset: 0; }
-.leak-card.is-open { animation: none; border-color: var(--red); }
-.leak-card.is-decrypted .leak-hint { color: var(--text-dim); }
-.leak-card.is-open .leak-cipher { color: var(--white); }
-.leak-card.is-glitching { animation: leak-glitch 400ms steps(1) both; border-color: var(--red-hot); }
-.leak-card.is-encrypting { animation-duration: 180ms; }
-.leak-card.is-glitching .leak-value, .leak-card.is-glitching .leak-hint {
-  text-shadow: -2px 0 rgb(229 57 45 / 0.85), 2px 0 rgb(54 220 230 / 0.85);
+.leak-card:is(:hover, :focus-visible) .leak-action { color: var(--white); border-color: var(--white); }
+.leak-card:focus-visible { outline-offset: -4px; }
+.mission-file-controls { border-top: 1px solid rgb(186 194 199 / 0.3); }
+.mission-file-controls button {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  color: var(--silver);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-align: start;
+  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
-.leak-slice {
-  position: absolute;
-  inset: var(--card-pad);
-  pointer-events: none;
-  height: auto;
-  clip-path: inset(24% 0 57% 0);
-  animation: leak-slice 400ms steps(1) both;
-}
-.leak-slice + .leak-slice { clip-path: inset(62% 0 16% 0); animation-direction: reverse; }
-.leak-card.is-encrypting .leak-slice { animation-duration: 180ms; }
-.leak-card.is-glitching::after {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 1px;
-  background: rgb(229 57 45 / 0.7);
-  animation: leak-scan 400ms linear both;
-}
-.leak-card.is-encrypting::after { animation-duration: 180ms; animation-direction: reverse; }
-@keyframes classified-pulse {
-  0%, 100% { border-color: rgb(229 57 45 / 0.18); }
-  50% { border-color: rgb(229 57 45 / 0.4); }
-}
-@keyframes leak-glitch {
-  0%, 100% { transform: none; }
-  12%, 38% { transform: translateX(-2px); }
-  22%, 65% { transform: translateX(2px); }
-  48%, 82% { transform: none; }
-}
-@keyframes leak-slice {
-  0%, 100% { transform: none; opacity: 0; }
-  12%, 48%, 78% { transform: translateX(-8px); opacity: 1; }
-  28%, 62%, 88% { transform: translateX(6px); opacity: 1; }
-  38%, 70% { opacity: 0; }
-}
-@keyframes leak-scan { from { top: 0; } to { top: 100%; } }
-[data-motion="reduced"] .leak-card { animation: none; }
-[data-motion="reduced"] .leak-card .leak-cipher {
-  transition: color 160ms ease-out !important;
-}
-@media (prefers-reduced-motion: reduce) { .leak-card { animation: none; } }
+.mission-file-controls button + button { border-inline-start: 1px solid rgb(186 194 199 / 0.3); text-align: end; }
+.mission-file-controls button:is(:hover, :focus-visible) { color: var(--white); background: rgb(186 194 199 / 0.08); }
 
 .small-print {
   margin-block-start: 1.5rem;
   text-align: center;
   font-size: 0.875rem;
   color: var(--text-dim);
+}
+
+@media (max-width: 45rem) {
+  .mission-file-header { padding-inline: 1.25rem; font-size: 0.625rem; }
+  .leak-card { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; min-height: 21rem; padding: 1.5rem; }
+  .leak-target-block { min-height: 5rem; padding: 1.25rem 0 0; border-inline-start: 0; border-top: 1px solid rgb(186 194 199 / 0.35); }
+  .mission-file-controls button { padding: 1rem; font-size: 0.6875rem; }
 }
 
 /* Rewards */
@@ -788,7 +807,6 @@ body[data-state="live"] #hero .countdown-label { color: var(--red-hot); }
   border-color: var(--fx-border-hover);
   transform: translateY(-2px);
 }
-.leak-card.fx-card:not(.is-glitching):is(:hover, :focus-visible) { animation: none; }
 
 .fx-frame {
   --fx-b: 14px;
@@ -799,7 +817,6 @@ body[data-state="live"] #hero .countdown-label { color: var(--red-hot); }
   background: linear-gradient(var(--red), var(--red)) 0 0 / 0% 2px no-repeat;
   transition: background-size 350ms var(--fx-ease);
 }
-.leak-card > .fx-frame { inset: 0; }
 .fx-frame::before, .fx-frame::after {
   content: "";
   position: absolute;

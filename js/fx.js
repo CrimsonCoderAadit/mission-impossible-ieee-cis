@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js';
+import { CONFIG } from './config.js?v=20261002-3';
 
 const FRAME_STEPS = [8, 4, 1];
 const PHASE_SEPARATOR = ' · ';
@@ -48,7 +48,6 @@ const ATMOSPHERE_MAX = 120;
 const ATMOSPHERE_EMBERS = 14;
 const ATMOSPHERE_AREA_PER_DROP = 18000;
 const ATMOSPHERE_BOOST = 3;
-const LASER_FLASH_MS = 200;
 const RETICLE_FOLLOW_MS = 60;
 const RETICLE_HOT = 'a, button, .card, [role="button"], summary, label';
 const RETICLE_TEXT = 'input, textarea, select, [contenteditable]';
@@ -425,13 +424,6 @@ function setupPhaseChips() {
   });
 }
 
-function splitLabel(node, labelClass) {
-  const text = node.textContent;
-  const at = text.indexOf(': ');
-  if (at < 0) return;
-  node.replaceChildren(span(labelClass, text.slice(0, at)), span('visually-hidden', ': '), span('leak-value', text.slice(at + 2)));
-}
-
 function scrambled(text, revealed = 0) {
   return [...text].map((character, index) => index < revealed || /\s/.test(character)
     ? character : CIPHER_GLYPHS[Math.floor(Math.random() * CIPHER_GLYPHS.length)]).join('');
@@ -449,96 +441,6 @@ function decrypt(node, text, complete, stepMs = 25) {
   };
   frame = requestAnimationFrame(update);
   return () => cancelAnimationFrame(frame);
-}
-
-function setupLeaks() {
-  const states = [];
-  const observer = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const state = states.find((item) => item.card === entry.target);
-      if (state) state.visible = entry.isIntersecting;
-    });
-  }) : null;
-
-  document.querySelectorAll('[data-leak]').forEach((card) => {
-    card.classList.add('card');
-    const concept = card.querySelector('.leak-concept');
-    const audience = card.querySelector('.leak-audience');
-    splitLabel(concept, 'tag');
-    splitLabel(audience, 'leak-label');
-    audience.classList.add('visually-hidden');
-    const text = audience.querySelector('.leak-value').textContent;
-    const hint = span('leak-hint', 'CLASSIFIED · TAP TO DECRYPT');
-    const cipherBlock = span('leak-cipher');
-    cipherBlock.setAttribute('aria-hidden', 'true');
-    const cipher = span('leak-cipher-text leak-value', scrambled(text));
-    cipherBlock.append(span('leak-cipher-layout', text), cipher);
-    const content = span('leak-content');
-    content.append(concept, hint, cipherBlock, audience);
-    card.append(content);
-    const state = { card, cipher, text, visible: !observer, busy: false };
-    states.push(state);
-    observer?.observe(card);
-    let glitchTimer = 0;
-    let fade = null;
-    let cancelDecrypt = () => {};
-
-    const clear = () => {
-      clearTimeout(glitchTimer);
-      fade?.cancel();
-      fade = null;
-      cancelDecrypt();
-      card.classList.remove('is-glitching', 'is-encrypting');
-      card.querySelectorAll('.leak-slice').forEach((slice) => slice.remove());
-      state.busy = false;
-    };
-    const settled = (expanded) => {
-      clear();
-      card.classList.toggle('is-decrypted', expanded);
-      hint.textContent = expanded ? 'DECRYPTED' : 'CLASSIFIED · TAP TO DECRYPT';
-      cipher.textContent = expanded ? text : scrambled(text);
-    };
-    const change = () => {
-      clear();
-      const expanded = card.getAttribute('aria-expanded') === 'true';
-      card.classList.remove('is-decrypted');
-      if (reducedMotion()) {
-        settled(expanded);
-        fade = cipher.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: 'ease-out' });
-        return;
-      }
-      state.busy = true;
-      for (let index = 0; index < 2; index += 1) {
-        const slice = content.cloneNode(true);
-        slice.className = 'leak-content leak-slice';
-        slice.setAttribute('aria-hidden', 'true');
-        slice.querySelector('.leak-audience').remove();
-        card.append(slice);
-      }
-      void card.offsetWidth;
-      card.classList.add('is-glitching');
-      card.classList.toggle('is-encrypting', !expanded);
-      glitchTimer = setTimeout(() => {
-        clear();
-        if (!expanded) { settled(false); return; }
-        state.busy = true;
-        cancelDecrypt = decrypt(cipher, text, () => {
-          settled(true);
-          flashLasers();
-        });
-      }, expanded ? 400 : 180);
-    };
-    card.addEventListener('click', change);
-    motionQuery.addEventListener('change', () => settled(card.getAttribute('aria-expanded') === 'true'));
-  });
-  setInterval(() => {
-    if (document.hidden || reducedMotion()) return;
-    states.forEach((state) => {
-      if (state.visible && !state.busy && state.card.getAttribute('aria-expanded') !== 'true') {
-        state.cipher.textContent = scrambled(state.text);
-      }
-    });
-  }, 120);
 }
 
 function setupManual() {
@@ -806,13 +708,6 @@ function setupTimeline() {
       entries.forEach((entry) => lasers.classList.toggle('is-dimmed', entry.isIntersecting));
     }).observe(document.getElementById('timeline'));
   }
-}
-
-function flashLasers() {
-  if (!motionOn()) return;
-  document.querySelectorAll('.laser').forEach((laser) => {
-    laser.animate([{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: getComputedStyle(laser).opacity }], { duration: LASER_FLASH_MS, easing: 'ease-out' });
-  });
 }
 
 function setupFuse() {
@@ -1102,7 +997,6 @@ setupIntro();
 setupTopbar();
 setupHero();
 setupPhaseChips();
-setupLeaks();
 setupManual();
 setupCriteria();
 setupReveal();

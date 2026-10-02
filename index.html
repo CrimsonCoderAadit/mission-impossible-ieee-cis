@@ -8,23 +8,23 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Mission: Impossible: IEEE CIS SSN · IEEE Day 2026">
   <meta property="og:description" content="Make the impossible work. A two phase pitch and prototype challenge by IEEE CIS, SSN Student Branch, for IEEE Day 2026.">
-  <meta property="og:image" content="assets/og.jpg">
-  <meta property="og:image:alt" content="Mission: Impossible event announcement">
+  <meta property="og:image" content="assets/hero-poster.jpg">
+  <meta property="og:image:alt" content="Red city skyline with an agent descending into the mission">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Mission: Impossible: IEEE CIS SSN · IEEE Day 2026">
   <meta name="twitter:description" content="Make the impossible work. A two phase pitch and prototype challenge by IEEE CIS, SSN Student Branch, for IEEE Day 2026.">
-  <meta name="twitter:image" content="assets/og.jpg">
-  <meta name="twitter:image:alt" content="Mission: Impossible event announcement">
+  <meta name="twitter:image" content="assets/hero-poster.jpg">
+  <meta name="twitter:image:alt" content="Red city skyline with an agent descending into the mission">
   <meta name="theme-color" content="#0b0707">
   <link rel="icon" type="image/png" href="assets/favicon.png" sizes="64x64">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/base.css?v=20261002-2">
-  <link rel="stylesheet" href="css/sections.css?v=20261002-2">
+  <link rel="stylesheet" href="css/tokens.css?v=20261002-3">
+  <link rel="stylesheet" href="css/base.css?v=20261002-3">
+  <link rel="stylesheet" href="css/sections.css?v=20261002-3">
   <script>try{if(!sessionStorage.getItem('mi-intro-seen')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro-pending')}catch(e){}</script>
-  <script type="module" src="js/main.js"></script>
-  <script type="module" src="js/fx.js"></script>
+  <script type="module" src="js/main.js?v=20261002-3"></script>
+  <script type="module" src="js/fx.js?v=20261002-3"></script>
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true" hidden>
@@ -147,9 +147,20 @@
         <header class="section-head">
           <p class="eyebrow">Scenarios</p>
           <h2 id="leaks-title">Scenario Leaks</h2>
-          <p class="section-sub">Intercepted briefs from past simulations. Tap to declassify.</p>
+          <p class="section-sub">One concept. One unlikely audience. Open a sample file to see the assignment.</p>
         </header>
-        <div class="cards cards--3 leak-grid" data-list="leaks"></div>
+        <div class="mission-file">
+          <div class="mission-file-header">
+            <span class="mission-file-number" data-leak-count>FILE 01 / 06</span>
+            <span class="mission-file-stamp">Simulation archive</span>
+          </div>
+          <div class="leak-grid" data-list="leaks"></div>
+          <div class="mission-file-controls">
+            <button type="button" data-leak-prev>← Previous file</button>
+            <button type="button" data-leak-next>Next file →</button>
+          </div>
+          <p class="visually-hidden" role="status" data-leak-announcement></p>
+        </div>
         <p class="small-print">Sample intel only. Live briefs are assigned on the day.</p>
       </div>
     </section>
@@ -215,7 +226,7 @@
             <dl class="rows intel-table">
               <div class="intel-row"><dt>Date</dt><dd><time data-date></time></dd></div>
               <div class="intel-row"><dt>Time</dt><dd data-event-time></dd></div>
-              <div class="intel-row"><dt>Venue</dt><dd><span data-field="venue"></span> · Room: <span data-field="room"></span></dd></div>
+              <div class="intel-row"><dt>Venue</dt><dd><span data-field="venue"></span><span data-room hidden> · Room: <span data-field="room"></span></span></dd></div>
               <div class="intel-row"><dt>Squad</dt><dd data-field="teamSize"></dd></div>
               <div class="intel-row"><dt>Entry fee</dt><dd data-fees></dd></div>
               <div class="intel-row"><dt>Bring</dt><dd data-field="equipment"></dd></div>

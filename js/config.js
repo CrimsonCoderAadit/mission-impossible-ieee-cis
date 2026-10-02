@@ -60,8 +60,8 @@ export const CONFIG = {
     prepMinutes: 60,
     prepDuration: "One hour",
     pitchMinutes: "~3",
-    buildMinutes: 90,
-    buildDuration: "Ninety minutes",
+    buildMinutes: 85,
+    buildDuration: "Eighty-five minutes",
     demoMinutes: "3 to 5"
   },
   selfDestructSeconds: 5

@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js';
+import { CONFIG } from './config.js?v=20261002-3';
 
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 function updateMotionPreference() {
@@ -42,6 +42,9 @@ function renderList(name, items, renderItem) {
 }
 
 selectAll('[data-field]').forEach((node) => { node.textContent = CONFIG[node.dataset.field]; });
+if (CONFIG.room && CONFIG.room !== 'TBA') {
+  selectAll('[data-room]').forEach((node) => { node.hidden = false; });
+}
 selectAll('[data-operation]').forEach((node) => { node.textContent = CONFIG.operation[node.dataset.operation]; });
 selectAll('[data-contact]').forEach((node) => { node.textContent = CONFIG.contact[node.dataset.contact]; });
 const titleParts = CONFIG.eventName.split(':');
@@ -104,11 +107,19 @@ renderList('leaks', CONFIG.leaks, (item, index) => {
   card.type = 'button';
   card.setAttribute('data-leak', '');
   card.setAttribute('aria-expanded', 'false');
-  const audience = element('span', 'leak-audience', `Audience: ${item.audience}`);
+  const concept = element('span', 'leak-concept-block');
+  concept.append(element('span', 'leak-field-label', 'Assigned concept'), element('span', 'leak-concept', item.concept));
+  const target = element('span', 'leak-target-block');
+  const audience = element('span', 'leak-audience', item.audience);
   audience.id = `leak-audience-${index}`;
   audience.hidden = true;
   card.setAttribute('aria-controls', audience.id);
-  card.append(element('span', 'leak-concept', `Concept: ${item.concept}`), audience);
+  target.append(
+    element('span', 'leak-field-label', 'Your audience'),
+    element('span', 'leak-placeholder', 'Classified until you open the file.'),
+    audience
+  );
+  card.append(concept, target, element('span', 'leak-action', 'Reveal audience'));
   return card;
 });
 
@@ -117,10 +128,35 @@ selectAll('[data-leak]').forEach((card) => {
     const expanded = card.getAttribute('aria-expanded') !== 'true';
     card.setAttribute('aria-expanded', String(expanded));
     card.classList.toggle('is-open', expanded);
-    const audience = document.getElementById(card.getAttribute('aria-controls'));
-    if (audience) audience.hidden = !expanded;
+    card.querySelector('.leak-audience').hidden = !expanded;
+    card.querySelector('.leak-placeholder').hidden = expanded;
+    card.querySelector('.leak-action').textContent = expanded ? 'Hide audience' : 'Reveal audience';
   });
 });
+
+const leakCards = [...selectAll('[data-leak]')];
+if (leakCards.length) {
+  let activeLeak = 0;
+  const count = document.querySelector('[data-leak-count]');
+  const announcement = document.querySelector('[data-leak-announcement]');
+  leakCards.forEach((card, index) => { card.hidden = index !== 0; });
+  const showLeak = (index) => {
+    const current = leakCards[activeLeak];
+    current.hidden = true;
+    current.setAttribute('aria-expanded', 'false');
+    current.classList.remove('is-open');
+    current.querySelector('.leak-audience').hidden = true;
+    current.querySelector('.leak-placeholder').hidden = false;
+    current.querySelector('.leak-action').textContent = 'Reveal audience';
+    activeLeak = (index + leakCards.length) % leakCards.length;
+    leakCards[activeLeak].hidden = false;
+    count.textContent = `FILE ${String(activeLeak + 1).padStart(2, '0')} / ${String(leakCards.length).padStart(2, '0')}`;
+    announcement.textContent = `File ${activeLeak + 1} of ${leakCards.length}: ${CONFIG.leaks[activeLeak].concept}`;
+  };
+  document.querySelector('[data-leak-prev]').addEventListener('click', () => showLeak(activeLeak - 1));
+  document.querySelector('[data-leak-next]').addEventListener('click', () => showLeak(activeLeak + 1));
+  count.textContent = `FILE 01 / ${String(leakCards.length).padStart(2, '0')}`;
+}
 
 renderList('prizes', CONFIG.prizes, (item) => {
   const prize = element('li', 'prize');

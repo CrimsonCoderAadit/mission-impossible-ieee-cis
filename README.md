@@ -54,11 +54,11 @@ The script extracts lossless PNGs into a temporary folder, runs `realesr-animevi
 
 Assets are cached as immutable; regenerated assets may require a cache refresh when deployed.
 
-## Assets to add
+## Site images
 
-- `assets/og.jpg`: the social preview image, ideally 1200 × 630 pixels.
-- `assets/favicon.ico`: the favicon placeholder referenced in the head.
-- Approved IEEE CIS / SSN logos or other event images for the visual pass, as needed.
+- `assets/hero-poster.jpg`: the hero fallback and current social preview image.
+- `assets/favicon.png`: the IEEE CIS favicon referenced in the head.
+- `assets/logos/`: the official SSN, IEEE and IEEE CIS logos.
 
 Do not use the film's logo, theme music or actor likenesses.
 
@@ -66,6 +66,6 @@ Do not use the film's logo, theme music or actor likenesses.
 
 - Real rules text: confirm the final rules and rulebook content.
 - Bypass code details: confirm the benefit and how it is awarded on site.
-- Room number: replace `TBA` in CONFIG.
+- Room number: replace `TBA` in CONFIG; the site hides the room until it is confirmed.
 - Wi-Fi/power: confirm participant access and availability.
 - Domain: confirm the public domain and final social preview URLs.
