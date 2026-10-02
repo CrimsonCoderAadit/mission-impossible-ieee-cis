@@ -1,6 +1,10 @@
 import { CONFIG } from './config.js?v=20261002-6';
 
-const FRAME_STEPS = [8, 4, 1];
+const FILM_FRAME_OFFSETS = [0, 1, -1, 2, -2, 4, -4, 8, -8];
+const FILM_LOAD_CONCURRENCY = 2;
+const FILM_CACHE_DESKTOP = 24;
+const FILM_CACHE_MOBILE = 20;
+const FILM_WARM_AT = 0.7;
 const PHASE_SEPARATOR = ' · ';
 const REVEAL_STAGGER_MS = 30;
 const REVEAL_STAGGER_MAX = 8;
@@ -99,19 +103,6 @@ function span(className, text) {
   return node;
 }
 
-function coarseToFine(count) {
-  const order = [];
-  const seen = new Set();
-  const add = (index) => {
-    if (!seen.has(index)) { seen.add(index); order.push(index); }
-  };
-  FRAME_STEPS.forEach((step, pass) => {
-    for (let index = 0; index < count; index += step) add(index);
-    if (pass === 0) add(count - 1);
-  });
-  return order;
-}
-
 function splitDirective(node) {
   const text = node.textContent;
   const at = text.indexOf(': ');
@@ -134,11 +125,14 @@ function setupFilm() {
   const crossEnd = CROSSFADE_CENTER + CROSSFADE_WIDTH / 2;
   let chapters = [];
   let variant = '';
+  const cache = new Map();
+  const pending = new Map();
+  let wanted = new Map();
   let queued = false;
   let lastDraw = '';
   let poster = '';
   let maxScroll = 1;
-  let generation = 0;
+  let loadGeneration = 0;
   let shownChapter = -1;
   let cutUntil = 0;
   let cutFresh = false;
@@ -146,12 +140,20 @@ function setupFilm() {
   const feed = document.querySelector('.film-feed');
   const fallback = () => motionQuery.matches || connection?.saveData || !context;
 
-  function release(chapter) {
-    if (!chapter) return;
-    chapter.generation = ++generation;
-    chapter.frames = [];
-    chapter.loading = false;
-    chapter.failed = false;
+  function clearFrames() {
+    loadGeneration += 1;
+    pending.forEach(({ image }) => image.removeAttribute('src'));
+    pending.clear();
+    cache.forEach(({ image }) => image.removeAttribute('src'));
+    cache.clear();
+    wanted = new Map();
+    chapters.forEach((chapter) => {
+      if (!chapter) return;
+      chapter.frames = [];
+      chapter.failedFrames = new Set();
+      chapter.failures = 0;
+      chapter.failed = false;
+    });
   }
 
   function measure() {
@@ -159,62 +161,112 @@ function setupFilm() {
     const nextVariant = window.innerWidth < 768 ? 'mobile' : 'desktop';
     if (variant !== nextVariant) {
       variant = nextVariant;
-      chapters.forEach(release);
+      clearFrames();
     }
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(window.innerWidth * dpr);
-    canvas.height = Math.round(viewport * dpr);
-    [[redGhost, CUT_GHOST_SCALE], [cyanGhost, CUT_GHOST_SCALE], [still, CUT_STILL_SCALE]].forEach(([buffer, scale]) => {
-      buffer.width = Math.max(1, Math.round(canvas.width * scale));
-      buffer.height = Math.max(1, Math.round(canvas.height * scale));
-    });
-    if (context) {
-      context.imageSmoothingEnabled = true;
-      context.imageSmoothingQuality = 'high';
+    const width = Math.round(window.innerWidth * dpr);
+    const height = Math.round(viewport * dpr);
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+      [[redGhost, CUT_GHOST_SCALE], [cyanGhost, CUT_GHOST_SCALE], [still, CUT_STILL_SCALE]].forEach(([buffer, scale]) => {
+        buffer.width = Math.max(1, Math.round(width * scale));
+        buffer.height = Math.max(1, Math.round(height * scale));
+      });
+      if (context) {
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = 'high';
+      }
+      lastDraw = '';
     }
     maxScroll = Math.max(1, document.documentElement.scrollHeight - viewport);
-    lastDraw = '';
     schedule();
   }
 
-  async function load(chapter) {
-    if (!chapter || chapter.loading || chapter.failed || fallback()) return;
-    chapter.loading = true;
-    const token = chapter.generation = ++generation;
-    const order = coarseToFine(chapter.frameCount);
-    let cursor = 0;
-    let failures = 0;
-    async function worker() {
-      while (cursor < order.length && chapter.generation === token && !fallback()) {
-        const index = order[cursor++];
-        if (chapter.frames[index]) continue;
-        const image = new Image();
-        image.decoding = 'async';
-        image.src = `${chapter[variant]}/frame_${String(index + 1).padStart(3, '0')}.webp`;
-        try {
-          await image.decode();
-          if (chapter.generation !== token) return;
-          chapter.frames[index] = image;
-          schedule();
-        } catch {
-          if (++failures >= 8 && !chapter.frames.some(Boolean)) {
-            chapter.failed = true;
-            chapter.generation = ++generation;
-            schedule();
-            return;
-          }
-        }
-      }
+  function touch(key) {
+    const entry = cache.get(key);
+    if (!entry) return;
+    cache.delete(key);
+    cache.set(key, entry);
+  }
+
+  function trimCache() {
+    const limit = variant === 'mobile' ? FILM_CACHE_MOBILE : FILM_CACHE_DESKTOP;
+    while (cache.size > limit) {
+      const key = [...cache.keys()].find((candidate) => !wanted.has(candidate)) || cache.keys().next().value;
+      const entry = cache.get(key);
+      cache.delete(key);
+      entry.chapter.frames[entry.index] = null;
+      entry.image.removeAttribute('src');
     }
-    // Four decodes at a time keep the coarse passes ahead of the fine frames.
-    await Promise.all(Array.from({ length: 4 }, worker));
+  }
+
+  function pump() {
+    if (fallback()) return;
+    while (pending.size < FILM_LOAD_CONCURRENCY) {
+      const target = [...wanted.values()].find(({ key, chapter, index }) =>
+        !cache.has(key) && !pending.has(key) && !chapter.failed && !chapter.failedFrames.has(index));
+      if (!target) return;
+      const { chapter, index, key } = target;
+      const image = new Image();
+      const record = { image, generation: loadGeneration };
+      const active = () => pending.get(key) === record && record.generation === loadGeneration;
+      image.decoding = 'async';
+      pending.set(key, record);
+      image.src = `${chapter[variant]}/frame_${String(index + 1).padStart(3, '0')}.webp`;
+      image.decode().then(() => {
+        if (!active() || !wanted.has(key)) return;
+        chapter.frames[index] = image;
+        cache.set(key, { image, chapter, index });
+        trimCache();
+        schedule();
+      }).catch(() => {
+        if (!active() || !wanted.has(key)) return;
+        chapter.failedFrames.add(index);
+        chapter.failures += 1;
+        if (chapter.failures >= 8 && !chapter.frames.some(Boolean)) chapter.failed = true;
+        schedule();
+      }).finally(() => {
+        if (!active()) return;
+        pending.delete(key);
+        pump();
+      });
+    }
+  }
+
+  function queueFrames(state) {
+    const next = new Map();
+    const add = (chapter, index) => {
+      if (!chapter || index < 0 || index >= chapter.frameCount) return;
+      const key = `${variant}:${chapter.name}:${index}`;
+      if (!next.has(key)) next.set(key, { key, chapter, index });
+    };
+    const active = state.cross === undefined
+      ? [{ chapter: chapters[state.chapter], index: frameIndex(chapters[state.chapter], state.t) }]
+      : [
+          { chapter: chapters[1], index: frameIndex(chapters[1], state.infiltration) },
+          { chapter: chapters[2], index: frameIndex(chapters[2], state.t) }
+        ];
+    FILM_FRAME_OFFSETS.forEach((offset) => active.forEach(({ chapter, index }) => add(chapter, index + offset)));
+    if (state.chapter < 2 && state.t >= FILM_WARM_AT) add(chapters[state.chapter + 1], 0);
+    wanted = next;
+    pending.forEach(({ image }, key) => {
+      if (wanted.has(key)) return;
+      image.removeAttribute('src');
+      pending.delete(key);
+    });
+    pump();
   }
 
   function nearest(chapter, index) {
     if (!chapter) return null;
     for (let distance = 0; distance < chapter.frameCount; distance += 1) {
       for (const candidate of [index - distance, index + distance]) {
-        if (chapter.frames[candidate]) return { image: chapter.frames[candidate], key: `${chapter.name}:${candidate}:${chapter.generation}` };
+        if (chapter.frames[candidate]) {
+          const key = `${variant}:${chapter.name}:${candidate}`;
+          touch(key);
+          return { image: chapter.frames[candidate], key };
+        }
       }
     }
     return null;
@@ -308,15 +360,6 @@ function setupFilm() {
     queued = false;
     const state = timeline(clamp01(window.scrollY / maxScroll));
     const crossing = state.cross !== undefined;
-    const active = crossing ? [1, 2] : [state.chapter];
-
-    chapters.forEach((item, index) => {
-      if (!item) return;
-      const distance = Math.min(...active.map((chapter) => Math.abs(chapter - index)));
-      if (distance > 1) {
-        if (item.loading || item.frames.length) release(item);
-      } else load(item);
-    });
 
     const posterUrl = chapters[state.chapter]?.poster || 'assets/hero-poster.jpg';
     if (poster !== posterUrl) {
@@ -326,6 +369,7 @@ function setupFilm() {
     const staticMode = fallback();
     layer.dataset.mode = staticMode ? 'poster' : 'film';
     if (staticMode) { canvas.hidden = true; return; }
+    queueFrames(state);
 
     let base;
     let overlay = null;
@@ -378,14 +422,17 @@ function setupFilm() {
   }
 
   function preferenceChanged() {
-    chapters.forEach(release);
+    clearFrames();
     measure();
   }
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', measure, { passive: true });
   motionQuery.addEventListener('change', preferenceChanged);
   connection?.addEventListener('change', preferenceChanged);
-  new ResizeObserver(measure).observe(document.querySelector('main'));
+  new ResizeObserver(() => {
+    maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    schedule();
+  }).observe(document.querySelector('main'));
   document.fonts?.ready.then(measure);
   measure();
   fetch('assets/film/manifest.json').then((response) => {
@@ -395,7 +442,7 @@ function setupFilm() {
     chapters = names.map((name) => {
       const entry = manifest.chapters.find((item) => item.name === name);
       return entry && Number.isInteger(entry.frameCount) && entry.frameCount > 0
-        ? { ...entry, frames: [], generation: 0, loading: false, failed: false } : null;
+        ? { ...entry, frames: [], failedFrames: new Set(), failures: 0, failed: false } : null;
     });
     measure();
   }).catch(() => { layer.dataset.mode = 'poster'; });
