@@ -5,7 +5,7 @@ export const CONFIG = {
   occasion: "IEEE Day 2026",
   start: "2026-10-09T09:30:00+05:30",
   end: "2026-10-09T13:30:00+05:30",
-  venue: "SSN College of Engineering",
+  venue: "SNU AB3",
   room: "TBA",
   registerUrl: "https://docs.google.com/forms/d/e/1FAIpQLSe2w_my1qFhgysbs3-5dtREk-wR5czb2x2A1uGgfeG68eLWfg/viewform",
   rulebookUrl: "assets/mission-impossible-rulebook.pdf",

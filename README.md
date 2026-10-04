@@ -30,9 +30,10 @@ Assets are cached as immutable. When replacing an asset, give it a new filename 
 
 - `index.html`: semantic markup, copy, metadata and behaviour hooks.
 - `js/config.js`: the single CONFIG object containing event facts, links and lists.
-- `js/main.js`: content rendering, countdown, links, leak toggles, sticky bar and footer sequence.
-- `js/fx.js`: visual effects: the Descent hero scroll sequence, the directive decrypt and the countdown tick.
-- `css/tokens.css`, `css/base.css`, `css/sections.css`: styling; currently minimal readable defaults.
+- `js/main.js`: event content, countdown and destination links.
+- `js/fx.js`: scenario file reveals, readable detail formatting and the registration transition.
+- `js/film.js`: the original London descent, infiltration and extraction scroll sequence.
+- `css/tokens.css`, `css/base.css`, `css/sections.css`: cream dossier panels, burgundy/red accents, responsive layouts and reduced-motion styling.
 - `assets/`: media, images and logos.
 
 Behaviour uses `data-*` hooks; styling uses classes. Beauty work may add wrappers and classes to the HTML but must preserve copy, links and behaviour hooks. Visual effects must respect `data-motion="reduced"` on the root element.
@@ -41,7 +42,9 @@ Metadata in `<head>` is present before JavaScript runs so link preview crawlers 
 
 ## Hero scroll sequence
 
-The hero background is the Descent sequence, scrubbed on a canvas as the visitor scrolls through a pinned hero. The title, then the tagline, directive and countdown, then the meta strip and buttons are revealed in three beats. `assets/hero-poster.jpg` is the first frame and is shown instead of the sequence when reduced motion or data saver is on, or when the hero content is too tall to fit one screen.
+The fixed London background follows the full page scroll through descent, infiltration and extraction. Its original frame loader, cache, camera movement and chapter transitions are preserved in `js/film.js`. Sections have transparent backgrounds; local reading panels provide contrast, with compact section spacing and the city visible around the panels. Reduced motion, data saver and unavailable frames use the existing poster fallback.
+
+Scenario files reveal their redacted audience on click or keyboard activation. Registration shows a 750 ms “Mission accepted” transition before opening the existing Google Form in the same tab. Escape cancels the transition; reduced motion and modified clicks retain the native link behavior. Returning with the browser’s Back button resets the transition. No information is submitted by the site.
 
 The three chapters live in `source/`: descent, infiltration and extraction. To regenerate every second frame with the free local AI upscaler:
 

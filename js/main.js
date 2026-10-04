@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js?v=20261002-6';
+import { CONFIG } from './config.js?v=20261004-hero-v2';
 
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 function updateMotionPreference() {
@@ -21,9 +21,9 @@ const dateFormatter = new Intl.DateTimeFormat('en-IN', {
   day: 'numeric', month: 'long', year: 'numeric', timeZone: CONFIG.timeZone
 });
 const timeFormatter = new Intl.DateTimeFormat('en-GB', {
-  hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: CONFIG.timeZone
+  hour: 'numeric', minute: '2-digit', hour12: true, timeZone: CONFIG.timeZone
 });
-const eventTime = `${timeFormatter.format(start)} to ${timeFormatter.format(end)} ${CONFIG.timeZoneLabel}`;
+const eventTime = `${timeFormatter.format(start).toUpperCase()}–${timeFormatter.format(end).toUpperCase()} ${CONFIG.timeZoneLabel}`;
 
 function fill(selector, value) {
   selectAll(selector).forEach((element) => { element.textContent = value; });

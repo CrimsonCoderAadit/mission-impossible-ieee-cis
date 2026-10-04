@@ -19,12 +19,10 @@
   <link rel="icon" type="image/png" href="assets/favicon.png" sizes="64x64">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/tokens.css?v=20261002-3">
-  <link rel="stylesheet" href="css/base.css?v=20261002-4">
-  <link rel="stylesheet" href="css/sections.css?v=20261002-6">
-  <script>try{if(!sessionStorage.getItem('mi-intro-seen')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('intro-pending')}catch(e){}</script>
-  <script type="module" src="js/main.js?v=20261002-6"></script>
-  <script type="module" src="js/fx.js?v=20261002-7"></script>
+  <link rel="stylesheet" href="css/tokens.css?v=20261004-hero-v2">
+  <link rel="stylesheet" href="css/base.css?v=20261004-hero-v2">
+  <link rel="stylesheet" href="css/sections.css?v=20261004-hero-v2">
+  <script type="module" src="js/fx.js?v=20261004-hero-v2"></script>
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true" hidden>
@@ -38,21 +36,7 @@
     <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
     <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/></symbol>
   </svg>
-  <div class="intro" aria-hidden="true">
-    <p class="intro-text">INCOMING TRANSMISSION</p>
-    <span class="intro-strike"></span>
-  </div>
-  <div class="film-layer" aria-hidden="true">
-    <canvas class="film-canvas" data-descent hidden></canvas>
-    <div class="film-scrim"></div>
-    <div class="film-grain"></div>
-  </div>
-  <canvas class="atmosphere" aria-hidden="true"></canvas>
-  <span class="film-feed" aria-hidden="true"></span>
-  <div class="fuse" aria-hidden="true">
-    <span class="fuse-burnt"></span>
-    <span class="fuse-head"><span class="fuse-spark"><span class="fuse-glow"></span><span class="fuse-core"></span><span class="fuse-particle"></span><span class="fuse-particle"></span><span class="fuse-particle"></span><span class="fuse-particle"></span><span class="fuse-particle"></span><span class="fuse-particle"></span></span></span>
-  </div>
+  <div class="film-layer" aria-hidden="true"><canvas class="film-canvas" data-descent hidden></canvas><div class="film-scrim"></div><div class="film-grain"></div></div>
   <a href="#main" class="skip-link">Skip to mission briefing</a>
   <header class="topbar">
     <a class="brand logo-row" href="#hero" aria-label="SSN, IEEE and IEEE CIS">
@@ -72,10 +56,12 @@
   </header>
   <main id="main">
     <section id="hero" class="hero" aria-labelledby="hero-title">
+      <span class="hero-file" aria-hidden="true">SSN / CIS / OPERATION 091026</span>
       <div class="hero-stage">
         <div class="hero-intro">
-          <p class="badge" data-beat="1"><span data-field="occasion"></span></p>
+          <div class="hero-event"><img class="event-logo" src="assets/logos/ieee-day-2026.jpg" alt="IEEE Day — Leveraging Technology for a Better Tomorrow" width="84" height="84"><p class="badge" data-beat="1"><span data-field="occasion"></span></p></div>
           <h1 id="hero-title" data-event-title data-beat="1"><span class="title-first"></span> <span class="title-second"></span></h1>
+          <p class="hero-summary">An impossible audience. An unlikely idea.<br>One squad to make it work.</p>
           <div class="countdown" data-countdown data-beat="2" role="timer" aria-label="Time until deployment">
             <p class="countdown-label" data-countdown-label>Time until deployment</p>
             <div class="countdown-strip strip">
@@ -137,7 +123,6 @@
     </section>
 
     <section id="leaks" class="section" aria-labelledby="leaks-title">
-      <div class="lasers" aria-hidden="true"><span class="laser"></span><span class="laser"></span><span class="laser"></span><span class="laser"></span><span class="laser"></span></div>
       <div class="container">
         <header class="section-head">
           <p class="eyebrow">Scenarios</p>
@@ -244,8 +229,9 @@
 
     <section id="accept" class="section finale" aria-labelledby="accept-title">
       <div class="container finale-inner">
-        <h2 id="accept-title">Your mission starts here.</h2>
-        <a class="button button--primary button--large" data-link="register" target="_blank" rel="noopener">Register</a>
+        <h2 id="accept-title">Your mission<br>starts here.</h2>
+        <p class="finale-note">Assemble your squad of 3 to 4. Registration takes place on Google Forms.</p>
+        <a class="button button--primary button--large" data-link="register" target="_blank" rel="noopener">Accept the mission</a>
       </div>
     </section>
   </main>
@@ -256,7 +242,14 @@
       <a data-link="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
     </nav>
   </footer>
-  <div class="reticle" aria-hidden="true"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="5"/><path class="reticle-ticks" d="M10 0v3.5M10 16.5V20M0 10h3.5M16.5 10H20"/></svg></div>
+  <div class="dispatch" role="dialog" aria-modal="true" aria-labelledby="dispatch-title" tabindex="-1" hidden>
+    <div class="dispatch-file">
+      <small>IEEE CIS · SSN / MISSION 091026</small>
+      <h2 id="dispatch-title" class="dispatch-stamp">Mission accepted</h2>
+      <p>Opening your squad’s registration form…</p>
+      <small>Press Escape to stay here</small>
+    </div>
+  </div>
   <noscript><p>Enable JavaScript to load the mission details, registration links and countdown.</p></noscript>
 </body>
 </html>
