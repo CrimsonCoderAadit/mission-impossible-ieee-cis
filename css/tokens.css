@@ -1,18 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Saira+Stencil+One&display=swap');
 :root {
-  --ink: #211b19;
-  --paper: #fff6e9;
+  /* Dark / Cinematic Canvas */
+  --bg-dark: #130d0e;
+  --surface-dark: rgba(28, 20, 21, 0.86);
+  --surface-dark-solid: #1c1314;
+  --border-dark: rgba(198, 45, 49, 0.35);
+
+  /* Light / Dossier Palette */
+  --paper: #fff7ed;
+  --paper-translucent: rgba(255, 247, 237, 0.95);
+  --paper-subtle: #f3e5d5;
   --beige: #eadcc8;
   --rose: #efd0c8;
-  --burgundy: #781c27;
-  --red: #c42d30;
-  --text: #3d3430;
-  --muted: #695a50;
-  --line: #cbbba7;
+  --ink: #1e1514;
+  --text: #3c312d;
+  --muted: #6e5c53;
+  --line: #cbb8a4;
+
+  /* Tactical Accents */
+  --burgundy: #7a1b26;
+  --burgundy-dark: #58121a;
+  --burgundy-translucent: rgba(122, 27, 38, 0.93);
+  --red: #c62d31;
+  --red-hover: #a81c20;
+  --red-glow: #ff5c54;
+  --rose-glow: #ff857e;
+  --gold: #d4af37;
+  --silver: #a8b2b9;
+  --bronze: #b87333;
+
+  /* Typography on Dark Backdrops */
+  --text-light: #f6eee6;
+  --text-muted-light: #d6beaf;
+  --eyebrow-light: #ffc4b8;
+
+  /* Typography */
   --font-display: 'Saira Stencil One', Impact, sans-serif;
   --font-heading: 'Barlow Condensed', Impact, sans-serif;
   --font-sans: 'Barlow', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Layout & Animation */
   --container: 1180px;
   --gutter: clamp(22px, 5vw, 76px);
   --topbar-h: 80px;
