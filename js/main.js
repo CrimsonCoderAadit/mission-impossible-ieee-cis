@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js?v=20261004-hero-v2';
+import { CONFIG } from './config.js?v=20261005-ui-v1';
 
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 function updateMotionPreference() {
@@ -131,9 +131,30 @@ renderList('leaks', CONFIG.leaks, (item, index) => {
   return card;
 });
 
-renderList('prizes', CONFIG.prizes, (item) => {
-  const prize = element('li', 'prize');
-  prize.append(element('h3', 'prize-place', item.place), element('p', 'prize-amount', currency.format(item.amount)), element('p', 'prize-certificate', item.cert));
+renderList('prizes', CONFIG.prizes, (item, index) => {
+  let rankClass = 'prize';
+  let badgeText = '';
+  if (index === 0 || item.place === '1st') {
+    rankClass = 'prize prize--first';
+    badgeText = 'TOP OPERATIVE';
+  } else if (index === 1 || item.place === '2nd') {
+    rankClass = 'prize prize--second';
+    badgeText = 'SENIOR OPERATIVE';
+  } else if (index === 2 || item.place === '3rd') {
+    rankClass = 'prize prize--third';
+    badgeText = 'FIELD OPERATIVE';
+  }
+
+  const prize = element('li', rankClass);
+  if (badgeText) {
+    const badge = element('span', 'prize-badge', badgeText);
+    prize.append(badge);
+  }
+  prize.append(
+    element('h3', 'prize-place', item.place),
+    element('p', 'prize-amount', currency.format(item.amount)),
+    element('p', 'prize-certificate', item.cert)
+  );
   return prize;
 });
 renderList('rules', CONFIG.rules, (rule) => element('li', 'rule', rule));
