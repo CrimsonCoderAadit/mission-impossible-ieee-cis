@@ -35,6 +35,10 @@
     <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></symbol>
     <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
     <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
   </svg>
   <div class="film-layer" aria-hidden="true"><canvas class="film-canvas" data-descent hidden></canvas><div class="film-scrim"></div><div class="film-grain"></div></div>
   <a href="#main" class="skip-link">Skip to mission briefing</a>
@@ -129,7 +133,10 @@
           <h2 id="leaks-title">Scenario Leaks</h2>
           <p class="section-sub">Six sample files. Select one to declassify its audience.</p>
         </header>
-        <div class="leak-grid" data-list="leaks"></div>
+        <div class="leak-carousel-wrapper">
+          <div class="leak-grid" data-list="leaks" role="region" aria-label="Scenario files"></div>
+          <div class="leak-dots" aria-hidden="true"></div>
+        </div>
         <p class="small-print">Sample intel only. Live briefs are assigned on the day.</p>
       </div>
     </section>
@@ -154,6 +161,11 @@
           <p class="section-sub">How the morning runs, from arrival to debrief.</p>
         </header>
         <div class="timeline-panel">
+          <div class="timeline-filter" role="tablist" aria-label="Filter schedule by phase">
+            <button type="button" class="timeline-filter-btn is-active" data-filter="all" role="tab" aria-selected="true">All Milestones</button>
+            <button type="button" class="timeline-filter-btn" data-filter="1" role="tab" aria-selected="false"><span class="filter-dot filter-dot--p1"></span>Phase 01 · Pitch</button>
+            <button type="button" class="timeline-filter-btn" data-filter="2" role="tab" aria-selected="false"><span class="filter-dot filter-dot--p2"></span>Phase 02 · Build</button>
+          </div>
           <div class="timeline-chart">
             <div class="timeline-rounds" aria-hidden="true"></div>
             <div class="timeline-axis" aria-hidden="true"></div>
@@ -207,16 +219,24 @@
               <p class="handler-name" data-contact="name"></p>
               <p class="handler-phone" data-contact="display"></p>
               <div class="handler-actions">
-                <a class="button button--primary" data-link="call">Call</a>
-                <a class="button button--secondary" data-link="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
+                <a class="button button--primary handler-btn" data-link="call" aria-label="Call Point of Contact">
+                  <svg class="icon" aria-hidden="true"><use href="#i-phone"/></svg>
+                  <span>Call Harini</span>
+                </a>
+                <a class="button button--secondary handler-btn" data-link="whatsapp" target="_blank" rel="noopener" aria-label="Message Point of Contact on WhatsApp">
+                  <svg class="icon" aria-hidden="true"><use href="#i-whatsapp"/></svg>
+                  <span>WhatsApp</span>
+                </a>
               </div>
             </section>
             <div class="rulebook">
               <a class="rulebook-download" data-link="rulebook" target="_blank" rel="noopener" download="mission-impossible-rulebook.pdf">
                 <svg class="icon rulebook-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"/></svg>
-                <span class="rulebook-label">Download rulebook (PDF)</span>
+                <div class="rulebook-info">
+                  <span class="rulebook-label">Download rulebook (PDF)</span>
+                  <span class="rulebook-meta">PDF · 12 pages · Official Dossier</span>
+                </div>
               </a>
-              <p class="rulebook-meta">PDF · 12 pages</p>
             </div>
           </div>
         </div>
@@ -242,6 +262,96 @@
       <a data-link="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
     </nav>
   </footer>
+
+  <!-- Floating Mobile Action Bar -->
+  <aside class="mobile-bar" aria-label="Quick mobile actions">
+    <button type="button" class="mobile-bar__btn mobile-bar__jump" data-toggle-nav aria-expanded="false" aria-controls="mobile-drawer" aria-label="Open mission index">
+      <svg class="icon" aria-hidden="true"><use href="#i-target"/></svg>
+      <span>INDEX</span>
+    </button>
+    <a class="button button--primary mobile-bar__btn mobile-bar__register" data-link="register" target="_blank" rel="noopener">
+      <span>ACCEPT MISSION</span>
+      <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg>
+    </a>
+  </aside>
+
+  <!-- Mobile Quick-Jump Drawer -->
+  <div id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mission Index" hidden>
+    <div class="mobile-drawer__backdrop" data-close-nav></div>
+    <div class="mobile-drawer__panel">
+      <div class="mobile-drawer__handle" aria-hidden="true"></div>
+      <div class="mobile-drawer__header">
+        <div class="mobile-drawer__title-wrap">
+          <small class="mobile-drawer__tag">SSN / CIS / OPERATION 091026</small>
+          <h2 class="mobile-drawer__title">Mission Index</h2>
+        </div>
+        <button type="button" class="mobile-drawer__close" data-close-nav aria-label="Close navigation">
+          <svg class="icon" aria-hidden="true"><use href="#i-close"/></svg>
+        </button>
+      </div>
+      <nav class="mobile-drawer__nav" aria-label="Mobile sections">
+        <a href="#briefing" class="mobile-drawer__link" data-nav-link>
+          <span class="mobile-drawer__num">01</span>
+          <span class="mobile-drawer__text">
+            <strong>The Briefing</strong>
+            <small>Challenge overview & squad stats</small>
+          </span>
+        </a>
+        <a href="#operation" class="mobile-drawer__link" data-nav-link>
+          <span class="mobile-drawer__num">02</span>
+          <span class="mobile-drawer__text">
+            <strong>Operation Plan</strong>
+            <small>Phase 1 Pitch & Phase 2 Build</small>
+          </span>
+        </a>
+        <a href="#leaks" class="mobile-drawer__link" data-nav-link>
+          <span class="mobile-drawer__num">03</span>
+          <span class="mobile-drawer__text">
+            <strong>Scenario Leaks</strong>
+            <small>Declassify sample concept files</small>
+          </span>
+        </a>
+        <a href="#timeline" class="mobile-drawer__link" data-nav-link>
+          <span class="mobile-drawer__num">04</span>
+          <span class="mobile-drawer__text">
+            <strong>Timeline & Schedule</strong>
+            <small>Morning itinerary & phases</small>
+          </span>
+        </a>
+        <a href="#rewards" class="mobile-drawer__link" data-nav-link>
+          <span class="mobile-drawer__num">05</span>
+          <span class="mobile-drawer__text">
+            <strong>Recovered Assets</strong>
+            <small>Cash prizes & certificates</small>
+          </span>
+        </a>
+        <a href="#evaluation" class="mobile-drawer__link" data-nav-link>
+          <span class="mobile-drawer__num">06</span>
+          <span class="mobile-drawer__text">
+            <strong>Judging Criteria</strong>
+            <small>Scoring weight protocol</small>
+          </span>
+        </a>
+        <a href="#manual" class="mobile-drawer__link" data-nav-link>
+          <span class="mobile-drawer__num">07</span>
+          <span class="mobile-drawer__text">
+            <strong>Field Manual & Intel</strong>
+            <small>Rules, venue, POC & rulebook</small>
+          </span>
+        </a>
+      </nav>
+      <div class="mobile-drawer__footer">
+        <a class="button button--secondary mobile-drawer__action" data-link="whatsapp" target="_blank" rel="noopener">
+          <svg class="icon" aria-hidden="true"><use href="#i-whatsapp"/></svg>
+          <span>WhatsApp POC</span>
+        </a>
+        <a class="button button--primary mobile-drawer__action" data-link="register" target="_blank" rel="noopener">
+          <span>Accept Mission</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="dispatch" role="dialog" aria-modal="true" aria-labelledby="dispatch-title" tabindex="-1" hidden>
     <div class="dispatch-file">
       <small>IEEE CIS · SSN / MISSION 091026</small>

@@ -43,7 +43,44 @@ function scrambleText(element, finalText, duration = 900) {
 }
 
 function setupLeaks() {
-  document.querySelectorAll('[data-leak]').forEach((card) => {
+  const cards = document.querySelectorAll('[data-leak]');
+  const dotsContainer = document.querySelector('.leak-dots');
+
+  // Setup dots for mobile carousel
+  if (dotsContainer && cards.length > 0) {
+    dotsContainer.innerHTML = '';
+    cards.forEach((card, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = `leak-dot${index === 0 ? ' is-active' : ''}`;
+      dot.setAttribute('aria-label', `Go to dossier file ${index + 1}`);
+      dot.addEventListener('click', () => {
+        card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      });
+      dotsContainer.appendChild(dot);
+    });
+
+    // IntersectionObserver to sync active dot with scrolled card
+    if ('IntersectionObserver' in window) {
+      const dots = dotsContainer.querySelectorAll('.leak-dot');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            const index = Array.from(cards).indexOf(entry.target);
+            if (index !== -1) {
+              dots.forEach((d, i) => d.classList.toggle('is-active', i === index));
+            }
+          }
+        });
+      }, {
+        root: document.querySelector('.leak-grid'),
+        threshold: 0.5
+      });
+      cards.forEach((card) => observer.observe(card));
+    }
+  }
+
+  cards.forEach((card) => {
     const cipherText = card.querySelector('.leak-cipher-text');
     const originalText = cipherText ? cipherText.textContent : '';
 
@@ -70,6 +107,94 @@ function setupLeaks() {
   });
 }
 
+function setupTimelineFilter() {
+  const filterBtns = document.querySelectorAll('.timeline-filter-btn');
+  const rows = document.querySelectorAll('.timeline-row');
+  if (!filterBtns.length || !rows.length) return;
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach((b) => {
+        b.classList.remove('is-active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-selected', 'true');
+
+      const filter = btn.dataset.filter;
+      rows.forEach((row) => {
+        if (filter === 'all') {
+          row.classList.remove('is-filtered-out');
+        } else {
+          const match = row.dataset.phase === filter;
+          row.classList.toggle('is-filtered-out', !match);
+        }
+      });
+    });
+  });
+}
+
+function setupMobileNav() {
+  const toggleBtn = document.querySelector('[data-toggle-nav]');
+  const drawer = document.querySelector('#mobile-drawer');
+  const mobileBar = document.querySelector('.mobile-bar');
+  if (!drawer) return;
+
+  const closeButtons = drawer.querySelectorAll('[data-close-nav]');
+  const navLinks = drawer.querySelectorAll('[data-nav-link]');
+
+  const openDrawer = () => {
+    drawer.hidden = false;
+    toggleBtn?.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeDrawer = () => {
+    drawer.hidden = true;
+    toggleBtn?.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  };
+
+  toggleBtn?.addEventListener('click', () => {
+    if (drawer.hidden) {
+      openDrawer();
+    } else {
+      closeDrawer();
+    }
+  });
+
+  closeButtons.forEach((btn) => btn.addEventListener('click', closeDrawer));
+  navLinks.forEach((link) => link.addEventListener('click', closeDrawer));
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !drawer.hidden) {
+      closeDrawer();
+    }
+  });
+
+  // Smart auto-hide on downward scroll for mobile bar
+  if (mobileBar) {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          if (currentScrollY > 180 && currentScrollY > lastScrollY + 12 && drawer.hidden) {
+            mobileBar.classList.add('is-hidden');
+          } else if (currentScrollY < lastScrollY - 6 || currentScrollY <= 80) {
+            mobileBar.classList.remove('is-hidden');
+          }
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+}
+
 function setupDetails() {
   document.querySelectorAll('.criterion').forEach((row) => {
     [...row.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE).forEach((node) => node.remove());
@@ -87,7 +212,7 @@ function setupDetails() {
 
 function setupRegistration() {
   const dispatch = document.querySelector('.dispatch');
-  const background = [...document.querySelectorAll('main, .topbar, .footer, .skip-link')];
+  const background = [...document.querySelectorAll('main, .topbar, .footer, .skip-link, .mobile-bar, .mobile-drawer')];
   let timer;
   let activeLink;
   const reset = () => {
@@ -125,5 +250,8 @@ function setupRegistration() {
 }
 
 setupLeaks();
+setupTimelineFilter();
+setupMobileNav();
 setupDetails();
 setupRegistration();
+
