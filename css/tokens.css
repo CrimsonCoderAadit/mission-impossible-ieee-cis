@@ -1,38 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Saira+Stencil+One&display=swap');
 :root {
-  /* Dark / Cinematic Canvas */
-  --bg-dark: #130d0e;
-  --surface-dark: rgba(28, 20, 21, 0.92);
-  --surface-dark-solid: #1c1314;
-  --border-dark: rgba(198, 45, 49, 0.35);
+  /* Unified Red & Burgundy Palette */
+  --red: #c92a2a;
+  --red-hover: #a61e24;
+  --red-glow: #ff6b6b;
+  --red-dark: #801823;
+  --red-dark-translucent: rgba(128, 24, 35, 0.94);
+  --red-tint: #fcedea;
+  --red-border: rgba(201, 42, 42, 0.35);
+  --red-shadow: rgba(128, 24, 35, 0.35);
 
-  /* Light / Dossier Palette */
+  /* Aliases for semantic backward compatibility */
+  --burgundy: var(--red-dark);
+  --rose: var(--red-tint);
+  --rose-glow: var(--red-glow);
+
+  /* Dark Cinematic Canvas */
+  --bg-dark: #120c0d;
+  --surface-dark: rgba(26, 17, 18, 0.92);
+  --surface-dark-solid: #1b1213;
+
+  /* Cream Dossier Paper */
   --paper: #fff6e9;
   --paper-translucent: rgba(255, 246, 233, 0.96);
   --paper-subtle: #f0decd;
   --beige: #eadcc8;
-  --rose: #efd0c8;
   --ink: #211b19;
   --text: #3d3430;
   --muted: #695a50;
   --line: #cbbba7;
 
-  /* Tactical Accents */
-  --burgundy: #781c27;
-  --burgundy-dark: #58121a;
-  --burgundy-translucent: rgba(120, 28, 39, 0.94);
-  --red: #c42d30;
-  --red-hover: #a71923;
-  --red-glow: #ff5c54;
-  --rose-glow: #ff857e;
-  --gold: #d4af37;
-  --silver: #a8b2b9;
-  --bronze: #b87333;
-
   /* Typography on Dark Backdrops */
   --text-light: #f5ebe2;
   --text-muted-light: #d8beaf;
-  --eyebrow-light: #ffc6ba;
+  --eyebrow-light: var(--red-glow);
+
+  /* Prize Metallics */
+  --gold: #d4af37;
+  --silver: #a8b2b9;
+  --bronze: #b87333;
 
   /* Typography */
   --font-display: 'Saira Stencil One', Impact, sans-serif;
