@@ -19,10 +19,10 @@
   <link rel="icon" type="image/png" href="assets/favicon.png" sizes="64x64">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/tokens.css?v=20261006-menu-glass-v6">
-  <link rel="stylesheet" href="css/base.css?v=20261006-menu-glass-v6">
-  <link rel="stylesheet" href="css/sections.css?v=20261006-menu-glass-v6">
-  <script type="module" src="js/fx.js?v=20261006-menu-glass-v6"></script>
+  <link rel="stylesheet" href="css/tokens.css?v=20261006-topbar-burger-v7">
+  <link rel="stylesheet" href="css/base.css?v=20261006-topbar-burger-v7">
+  <link rel="stylesheet" href="css/sections.css?v=20261006-topbar-burger-v7">
+  <script type="module" src="js/fx.js?v=20261006-topbar-burger-v7"></script>
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true" hidden>
@@ -58,6 +58,13 @@
       <a href="#manual">Manual</a>
     </nav>
     <a class="button" data-link="register" target="_blank" rel="noopener">Register</a>
+    <button type="button" class="topbar__menu-btn" data-toggle-nav aria-expanded="false" aria-controls="mobile-drawer" aria-label="Toggle menu">
+      <span class="burger-icon" aria-hidden="true">
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+      </span>
+    </button>
   </header>
   <main id="main">
     <section id="hero" class="hero" aria-labelledby="hero-title">
@@ -264,15 +271,8 @@
     </nav>
   </footer>
 
-  <!-- Floating Mobile Action Bar -->
+  <!-- Floating Mobile Action Bar (CTA only) -->
   <aside class="mobile-bar" aria-label="Quick mobile actions">
-    <button type="button" class="mobile-bar__btn mobile-bar__menu" data-toggle-nav aria-expanded="false" aria-controls="mobile-drawer" aria-label="Toggle menu">
-      <span class="burger-icon" aria-hidden="true">
-        <span class="burger-line"></span>
-        <span class="burger-line"></span>
-        <span class="burger-line"></span>
-      </span>
-    </button>
     <a class="button button--primary mobile-bar__btn mobile-bar__register" data-link="register" target="_blank" rel="noopener">
       <span>ACCEPT MISSION</span>
       <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg>
