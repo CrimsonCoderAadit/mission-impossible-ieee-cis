@@ -146,12 +146,14 @@ function setupMobileNav() {
   const openDrawer = () => {
     drawer.hidden = false;
     toggleBtn?.setAttribute('aria-expanded', 'true');
+    toggleBtn?.classList.add('is-active');
     document.body.style.overflow = 'hidden';
   };
 
   const closeDrawer = () => {
     drawer.hidden = true;
     toggleBtn?.setAttribute('aria-expanded', 'false');
+    toggleBtn?.classList.remove('is-active');
     document.body.style.overflow = '';
   };
 

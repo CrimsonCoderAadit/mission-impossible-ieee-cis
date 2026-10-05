@@ -19,10 +19,10 @@
   <link rel="icon" type="image/png" href="assets/favicon.png" sizes="64x64">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="css/tokens.css?v=20261006-unified-red">
-  <link rel="stylesheet" href="css/base.css?v=20261006-unified-red">
-  <link rel="stylesheet" href="css/sections.css?v=20261006-unified-red">
-  <script type="module" src="js/fx.js?v=20261006-unified-red"></script>
+  <link rel="stylesheet" href="css/tokens.css?v=20261006-menu-morph-v4">
+  <link rel="stylesheet" href="css/base.css?v=20261006-menu-morph-v4">
+  <link rel="stylesheet" href="css/sections.css?v=20261006-menu-morph-v4">
+  <script type="module" src="js/fx.js?v=20261006-menu-morph-v4"></script>
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true" hidden>
@@ -266,9 +266,13 @@
 
   <!-- Floating Mobile Action Bar -->
   <aside class="mobile-bar" aria-label="Quick mobile actions">
-    <button type="button" class="mobile-bar__btn mobile-bar__menu" data-toggle-nav aria-expanded="false" aria-controls="mobile-drawer" aria-label="Open menu">
-      <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
-      <span>MENU</span>
+    <button type="button" class="mobile-bar__btn mobile-bar__menu" data-toggle-nav aria-expanded="false" aria-controls="mobile-drawer" aria-label="Toggle menu">
+      <span class="burger-icon" aria-hidden="true">
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+      </span>
+      <span class="burger-label">MENU</span>
     </button>
     <a class="button button--primary mobile-bar__btn mobile-bar__register" data-link="register" target="_blank" rel="noopener">
       <span>ACCEPT MISSION</span>
@@ -277,68 +281,36 @@
   </aside>
 
   <!-- Mobile Quick-Jump Drawer -->
-  <div id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mission Index" hidden>
+  <div id="mobile-drawer" class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Mission Menu" hidden>
     <div class="mobile-drawer__backdrop" data-close-nav></div>
     <div class="mobile-drawer__panel">
-      <div class="mobile-drawer__handle" aria-hidden="true"></div>
       <div class="mobile-drawer__header">
-        <div class="mobile-drawer__title-wrap">
-          <small class="mobile-drawer__tag">SSN / CIS / OPERATION 091026</small>
-          <h2 class="mobile-drawer__title">Mission Index</h2>
-        </div>
-        <button type="button" class="mobile-drawer__close" data-close-nav aria-label="Close navigation">
+        <span class="mobile-drawer__tag">IEEE CIS · SSN STUDENT BRANCH</span>
+        <button type="button" class="mobile-drawer__close" data-close-nav aria-label="Close menu">
           <svg class="icon" aria-hidden="true"><use href="#i-close"/></svg>
         </button>
       </div>
       <nav class="mobile-drawer__nav" aria-label="Mobile sections">
         <a href="#briefing" class="mobile-drawer__link" data-nav-link>
-          <span class="mobile-drawer__num">01</span>
-          <span class="mobile-drawer__text">
-            <strong>The Briefing</strong>
-            <small>Challenge overview & squad stats</small>
-          </span>
+          <span>THE CHALLENGE</span>
         </a>
         <a href="#operation" class="mobile-drawer__link" data-nav-link>
-          <span class="mobile-drawer__num">02</span>
-          <span class="mobile-drawer__text">
-            <strong>Operation Plan</strong>
-            <small>Phase 1 Pitch & Phase 2 Build</small>
-          </span>
+          <span>OPERATION PLAN</span>
         </a>
         <a href="#leaks" class="mobile-drawer__link" data-nav-link>
-          <span class="mobile-drawer__num">03</span>
-          <span class="mobile-drawer__text">
-            <strong>Scenario Leaks</strong>
-            <small>Declassify sample concept files</small>
-          </span>
+          <span>SCENARIO LEAKS</span>
         </a>
         <a href="#timeline" class="mobile-drawer__link" data-nav-link>
-          <span class="mobile-drawer__num">04</span>
-          <span class="mobile-drawer__text">
-            <strong>Timeline & Schedule</strong>
-            <small>Morning itinerary & phases</small>
-          </span>
+          <span>SCHEDULE</span>
         </a>
         <a href="#rewards" class="mobile-drawer__link" data-nav-link>
-          <span class="mobile-drawer__num">05</span>
-          <span class="mobile-drawer__text">
-            <strong>Recovered Assets</strong>
-            <small>Cash prizes & certificates</small>
-          </span>
-        </a>
-        <a href="#evaluation" class="mobile-drawer__link" data-nav-link>
-          <span class="mobile-drawer__num">06</span>
-          <span class="mobile-drawer__text">
-            <strong>Judging Criteria</strong>
-            <small>Scoring weight protocol</small>
-          </span>
+          <span>RECOVERED ASSETS</span>
         </a>
         <a href="#manual" class="mobile-drawer__link" data-nav-link>
-          <span class="mobile-drawer__num">07</span>
-          <span class="mobile-drawer__text">
-            <strong>Field Manual & Intel</strong>
-            <small>Rules, venue, POC & rulebook</small>
-          </span>
+          <span>DETAILS</span>
+        </a>
+        <a data-link="rulebook" class="mobile-drawer__link" data-nav-link target="_blank" rel="noopener" download="mission-impossible-rulebook.pdf">
+          <span>RULEBOOK</span>
         </a>
       </nav>
       <div class="mobile-drawer__footer">
@@ -347,7 +319,7 @@
           <span>WhatsApp POC</span>
         </a>
         <a class="button button--primary mobile-drawer__action" data-link="register" target="_blank" rel="noopener">
-          <span>Accept Mission</span>
+          <span>ACCEPT MISSION</span>
         </a>
       </div>
     </div>
