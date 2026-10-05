@@ -2,27 +2,27 @@
 :root {
   /* Dark / Cinematic Canvas */
   --bg-dark: #130d0e;
-  --surface-dark: rgba(28, 20, 21, 0.86);
+  --surface-dark: rgba(28, 20, 21, 0.92);
   --surface-dark-solid: #1c1314;
   --border-dark: rgba(198, 45, 49, 0.35);
 
   /* Light / Dossier Palette */
-  --paper: #fff7ed;
-  --paper-translucent: rgba(255, 247, 237, 0.95);
-  --paper-subtle: #f3e5d5;
+  --paper: #fff6e9;
+  --paper-translucent: rgba(255, 246, 233, 0.96);
+  --paper-subtle: #f0decd;
   --beige: #eadcc8;
   --rose: #efd0c8;
-  --ink: #1e1514;
-  --text: #3c312d;
-  --muted: #6e5c53;
-  --line: #cbb8a4;
+  --ink: #211b19;
+  --text: #3d3430;
+  --muted: #695a50;
+  --line: #cbbba7;
 
   /* Tactical Accents */
-  --burgundy: #7a1b26;
+  --burgundy: #781c27;
   --burgundy-dark: #58121a;
-  --burgundy-translucent: rgba(122, 27, 38, 0.93);
-  --red: #c62d31;
-  --red-hover: #a81c20;
+  --burgundy-translucent: rgba(120, 28, 39, 0.94);
+  --red: #c42d30;
+  --red-hover: #a71923;
   --red-glow: #ff5c54;
   --rose-glow: #ff857e;
   --gold: #d4af37;
@@ -30,9 +30,9 @@
   --bronze: #b87333;
 
   /* Typography on Dark Backdrops */
-  --text-light: #f6eee6;
-  --text-muted-light: #d6beaf;
-  --eyebrow-light: #ffc4b8;
+  --text-light: #f5ebe2;
+  --text-muted-light: #d8beaf;
+  --eyebrow-light: #ffc6ba;
 
   /* Typography */
   --font-display: 'Saira Stencil One', Impact, sans-serif;
