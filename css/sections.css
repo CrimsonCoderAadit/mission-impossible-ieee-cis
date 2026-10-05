@@ -292,7 +292,7 @@
   }
   .mobile-bar.is-hidden { transform: translateY(110%); }
   .mobile-bar__btn { min-height: 48px; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
-  .mobile-bar__jump {
+  .mobile-bar__menu {
     flex: 0 0 auto;
     padding: 10px 16px;
     gap: 8px;
@@ -302,8 +302,8 @@
     font: 600 .82rem var(--font-mono);
     letter-spacing: .08em;
   }
-  .mobile-bar__jump:active { background: rgba(255, 246, 233, 0.22); }
-  .mobile-bar__jump .icon { width: 18px; height: 18px; color: #ff857e; }
+  .mobile-bar__menu:active { background: rgba(255, 246, 233, 0.22); }
+  .mobile-bar__menu .icon { width: 20px; height: 20px; color: #ff857e; }
   .mobile-bar__register {
     flex: 1;
     gap: 10px;
