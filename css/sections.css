@@ -458,6 +458,10 @@
   .criteria-list { column-gap: 20px; } .criterion-name { font-size: 1.3rem; }
   .manual-side { padding: 25px; } .intel-row { grid-template-columns: 70px 1fr; gap: 20px; }
 }
+@media (max-width: 600px) {
+  .prize-list { grid-template-columns: minmax(0, 1fr); }
+  .prize { min-width: 0; }
+}
 
 .film-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 @media (max-width: 760px) {
