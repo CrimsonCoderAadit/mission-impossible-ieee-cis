@@ -1,18 +1,52 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Saira+Stencil+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Saira+Stencil+One&display=swap');
 :root {
-  --ink: #211b19;
+  /* Exact User-Supplied Mission Red */
+  --red: #d4130e;
+  --red-hover: #b00f0b;
+  --red-glow: #ff4740;
+  --red-dark: #7a1215;
+  --red-dark-translucent: rgba(122, 18, 21, 0.94);
+  --red-tint: #fcedea;
+  --red-border: rgba(212, 19, 14, 0.45);
+  --red-shadow: rgba(212, 19, 14, 0.35);
+
+  /* Semantic Aliases */
+  --burgundy: var(--red-dark);
+  --rose: var(--red-tint);
+  --rose-glow: var(--red-glow);
+
+  /* High Contrast Dark Canvas */
+  --bg-dark: #0f0809;
+  --surface-dark: rgba(20, 11, 12, 0.92);
+  --surface-dark-solid: #160c0e;
+
+  /* Crisp Cream Dossier Paper */
   --paper: #fff6e9;
+  --paper-translucent: rgba(255, 246, 233, 0.97);
+  --paper-subtle: #f2e2d0;
   --beige: #eadcc8;
-  --rose: #efd0c8;
-  --burgundy: #781c27;
-  --red: #c42d30;
-  --text: #3d3430;
-  --muted: #695a50;
-  --line: #cbbba7;
+  --ink: #181112;
+  --text: #36292b;
+  --muted: #645153;
+  --line: #c8b7a4;
+
+  /* Crisp Typography on Dark Backdrops */
+  --text-light: #ffffff;
+  --text-muted-light: #dfcbbf;
+  --eyebrow-light: var(--red-glow);
+
+  /* Prize Metallics */
+  --gold: #d4af37;
+  --silver: #a8b2b9;
+  --bronze: #b87333;
+
+  /* Typography */
   --font-display: 'Saira Stencil One', Impact, sans-serif;
   --font-heading: 'Barlow Condensed', Impact, sans-serif;
   --font-sans: 'Barlow', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Layout & Animation */
   --container: 1180px;
   --gutter: clamp(22px, 5vw, 76px);
   --topbar-h: 80px;
