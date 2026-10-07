@@ -3,9 +3,9 @@ export const CONFIG = {
   tagline: "Make the impossible work.",
   organiser: "IEEE Computational Intelligence Society · SSN Student Branch",
   occasion: "IEEE Day 2026",
-  start: "2026-10-09T09:30:00+05:30",
-  end: "2026-10-09T13:30:00+05:30",
-  venue: "SNU AB3",
+  start: "2026-10-09T11:15:00+05:30",
+  end: "2026-10-09T14:30:00+05:30",
+  venue: "Mech Seminar Hall",
   room: "TBA",
   registerUrl: "https://docs.google.com/forms/d/e/1FAIpQLSe2w_my1qFhgysbs3-5dtREk-wR5czb2x2A1uGgfeG68eLWfg/viewform",
   rulebookUrl: "assets/mission-impossible-rulebook.pdf",
@@ -18,13 +18,13 @@ export const CONFIG = {
   ],
   contact: { name: "Harini Narasimhan", phone: "+918072001636", display: "+91 80720 01636" },
   schedule: [
-    { time: "09:30", end: "09:40", label: "Arrival", detail: "Team registration" },
-    { time: "09:40", end: "09:50", label: "Briefing", detail: "Welcome, rules and format" },
-    { time: "09:50", end: "10:50", label: "Phase 01 · Prep", detail: "Ideate and build your pitch", phase: 1 },
-    { time: "10:50", end: "11:35", label: "Phase 01 · Pitches", detail: "About 3 min per squad plus questions from other teams", phase: 1 },
-    { time: "11:35", end: "13:00", label: "Phase 02 · Build", detail: "Turn the pitch into a working prototype", phase: 2 },
-    { time: "13:00", end: "13:20", label: "Phase 02 · Demos", detail: "Final demos to the judges", phase: 2 },
-    { time: "13:20", end: "13:30", label: "Debrief", detail: "Results and awards" }
+    { time: "11:15", end: "11:25", label: "Arrival", detail: "Team registration" },
+    { time: "11:25", end: "11:35", label: "Briefing", detail: "Welcome, rules and format" },
+    { time: "11:35", end: "12:20", label: "Phase 01 · Prep", detail: "Ideate and build your pitch", phase: 1 },
+    { time: "12:20", end: "12:55", label: "Phase 01 · Pitches", detail: "About 3 min per squad plus questions from other teams", phase: 1 },
+    { time: "12:55", end: "14:05", label: "Phase 02 · Build", detail: "Turn the pitch into a working prototype", phase: 2 },
+    { time: "14:05", end: "14:20", label: "Phase 02 · Demos", detail: "Final demos to the judges", phase: 2 },
+    { time: "14:20", end: "14:30", label: "Debrief", detail: "Results and awards" }
   ],
   judging: [
     { name: "Creativity & Innovation", weight: 25, round: "Phase 01" },
@@ -57,11 +57,11 @@ export const CONFIG = {
   equipment: "Your own laptop, charged, with AI tool access",
   participation: "Every operative receives a Certificate of Participation.",
   operation: {
-    prepMinutes: 60,
-    prepDuration: "One hour",
+    prepMinutes: 45,
+    prepDuration: "Forty-five minutes",
     pitchMinutes: "~3",
-    buildMinutes: 85,
-    buildDuration: "Eighty-five minutes",
+    buildMinutes: 70,
+    buildDuration: "Seventy minutes",
     demoMinutes: "3 to 5"
   },
   selfDestructSeconds: 5
